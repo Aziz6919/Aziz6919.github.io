@@ -1,0 +1,267 @@
+<html>
+<canvas id = "mycanvas" height="600" width="800"></canvas>
+<script>
+var g_canvas = document.getElementById("mycanvas");
+var g_ctx = g_canvas.getContext("2d");
+var framerate = 30;
+var intervaltime = 1000/framerate;
+var AlphabetArray = new Array(16);
+AlphabetArray = ["A","B","C","D","E","F","G","H","I","J","K","L"," ","M","N","O"];
+var finalAlphabetArray = new Array(16);
+finalAlphabetArray = ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O"," "];
+var rightnode =0;
+var leftnode = 0;
+var upnode = 0;
+var downnode = 0;
+var gridsize = 0;
+var righttile = 0;
+var lefttile = 0;
+var uptile = 0;
+var downtile = 0;
+var Tiles;
+var minutes = 0;
+var clickTile = 0;
+var steps=0;
+var seconds= 0;
+var GameText;
+var framacounter=0;
+var matchingTextcount =0;
+var Timerstop=true;
+var Gamestop=true;
+class C_Text
+{
+   constructor(l_X,l_Y,l_text)
+   {
+       this.X = l_X;
+       this.Y = l_Y;
+       this.Text = l_text;
+       this.setActive=false;
+   }
+   m_drawText(l_ctx)
+   {
+       if(this.setActive==true)
+       {
+           l_ctx.font = "30px Georgia";
+           l_ctx.fillStyle = "white";
+           l_ctx.fillText(this.Text,this.X,this.Y);
+       }
+   }
+}   
+class C_Tile
+{
+    constructor(l_X,l_Y,l_width,l_height,l_text)
+    {
+       this.X = l_X;
+       this.Y = l_Y;
+       this.width = l_width;
+       this.height = l_height;
+       this.Text = l_text;
+    }
+    m_drawtile(l_ctx)
+    {
+       l_ctx.strokeStyle ="red";
+       l_ctx.strokeRect(this.X,this.Y,this.width,this.height);
+       l_ctx.font = "30px Georgia";
+       l_ctx.fillStyle = "white";
+       l_ctx.fillText(this.Text,this.X+this.width/3.5,this.Y+this.height/1.4);
+    }
+}
+    
+
+function f_mousedownhandler(l_keydata)
+{
+   for(var i=0; i<Tiles.length; i++)
+   {
+        
+   if(l_keydata.clientX>Tiles[i].X)
+   {
+       if(l_keydata.clientX<Tiles[i].X+Tiles[i].width)
+       {
+           if(l_keydata.clientY>Tiles[i].Y)
+           {
+               if(l_keydata.clientY<Tiles[i].Y+Tiles[i].height)
+               {
+                   if(Gamestop==true)
+                   {
+                       clickTile=i;
+                       findneighbouringTiles();
+                       GameCompletelogic();
+                       break;
+                   }
+                    
+                   
+               }
+           }
+       }
+   }
+   }
+   
+}
+
+function findneighbouringTiles()
+{
+    var clicktileposition = clickTile+1;
+    rightnode=clicktileposition+1;
+    leftnode = clicktileposition-1;
+    upnode = clicktileposition-gridsize;
+    downnode=clicktileposition+gridsize;
+    if(rightnode>(gridsize*gridsize))
+    {
+        rightnode=null;
+    }
+    if(downnode>(gridsize*gridsize))
+    {
+        downnode=null;
+    }
+    if(leftnode<1)
+    {
+        leftnode=null;
+    }
+    if(upnode<1)
+    {
+        upnode=null;
+    }
+    if(clicktileposition%gridsize==0)
+    {
+        rightnode=null;
+    }
+   if((clicktileposition-1)%gridsize==0)
+    {
+        leftnode=null;
+    }
+    //---------------------------
+   
+    if( rightnode!=null && Tiles[rightnode-1].Text==" ")
+    {
+        Tiles[rightnode-1].Text=Tiles[clicktileposition-1].Text;
+        Tiles[clicktileposition-1].Text=" ";
+    
+        steps++;
+    }
+    else if(leftnode!=null && Tiles[leftnode-1].Text==" ")
+    {
+        Tiles[leftnode-1].Text=Tiles[clicktileposition-1].Text;
+        Tiles[clicktileposition-1].Text=" ";
+        steps++;
+    }
+    else if(upnode!=null && Tiles[upnode-1].Text==" ")
+    {
+        Tiles[upnode-1].Text=Tiles[clicktileposition-1].Text;
+        Tiles[clicktileposition-1].Text=" ";
+        steps++;
+    }
+    else if(downnode!=null && Tiles[downnode-1].Text==" ")
+    {
+        Tiles[downnode-1].Text=Tiles[clicktileposition-1].Text;
+        Tiles[clicktileposition-1].Text=" ";
+        steps++;
+    }
+}
+//------------------------
+function Timer()
+{
+    framacounter++;
+    if(framacounter>=framerate)
+    {
+        seconds++;
+        framacounter=0;
+    }
+    if(seconds>=60)
+    {
+        seconds=0;
+        minutes++;
+    }
+}
+function stepsText(l_ctx,l_X,l_Y)
+{
+    l_ctx.font = "30px Georgia";
+    l_ctx.fillStyle="white";
+    l_ctx.fillText("steps"+" "+steps,l_X,l_Y);
+}
+function TimeText(l_ctx,l_X,l_Y)
+{
+    l_ctx.font = "30px Georgia";
+    l_ctx.fillStyle="white";
+    l_ctx.fillText("Time"+" "+minutes+":"+seconds,l_X,l_Y);
+}
+function createTiles(l_size)
+{
+    gridsize=l_size;
+     Tiles = new Array(gridsize*gridsize);
+    var index = 0;
+    var l_Xstartpos = g_canvas.width/2.8;
+    var l_Ystartpos = g_canvas.height/3;
+    var l_X = l_Xstartpos;
+    var l_Y =  l_Ystartpos;
+    var tilesize = 50;
+    for(var i=0; i<l_size; i++)
+    {
+        for(var j=0; j<l_size; j++)
+        {
+            Tiles[index] = new C_Tile(l_X,l_Y,tilesize,tilesize,AlphabetArray[index]);
+            l_X +=tilesize;
+            index++;
+        }
+        l_X = l_Xstartpos;
+        l_Y +=tilesize;
+    }
+}
+
+function drawTiles(l_ctx)
+{
+    for(var i=0; i<Tiles.length; i++)
+    {
+        Tiles[i].m_drawtile(l_ctx);
+    }
+} 
+GameText = new C_Text(297,450,"Game"+" "+"complete");
+function GameCompletelogic()
+{
+    for(var i=0; i<Tiles.length; i++)
+    {
+        if(Tiles[i].Text==finalAlphabetArray[i])
+        {
+             matchingTextcount++;
+           
+        }
+    }
+    if(matchingTextcount!=finalAlphabetArray.length)
+    {
+        matchingTextcount=0;
+    }
+    if(matchingTextcount==finalAlphabetArray.length)
+    {
+       
+        GameText.setActive=true;
+        Timerstop=false;
+        Gamestop=false;
+    }
+    
+        
+    
+} 
+function Timemanager()
+{
+    if(Timerstop==true)
+    {
+        Timer();
+    }
+}
+function Gameloop()
+{
+    Timemanager();
+    g_ctx.clearRect(0,0,g_canvas.width,g_canvas.height);
+    g_ctx.fillStyle = "black";
+    g_ctx.fillRect(0,0,g_canvas.width,g_canvas.height);
+    drawTiles(g_ctx);
+    stepsText(g_ctx,50,50);
+    TimeText(g_ctx,650,50);
+    GameText.m_drawText(g_ctx);
+}
+createTiles(4);
+setInterval(Gameloop,intervaltime);
+document.addEventListener("mousedown",f_mousedownhandler);
+
+
+</script>
+</html>

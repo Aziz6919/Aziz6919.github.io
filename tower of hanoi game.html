@@ -1,0 +1,260 @@
+<html>
+
+<canvas id = "mycanvas" width="800" height="600"></canvas>
+<script>
+var g_canvas = document.getElementById("mycanvas");
+var g_ctx = g_canvas.getContext("2d");
+var framerate = 30;
+var intervaltime = 1000/framerate;
+
+class C_Text
+{
+   constructor(l_X,l_Y,l_Text,l_color)
+   {
+       this.X = l_X;
+       this.Y = l_Y;
+       this.Text = l_Text;
+       this.color = l_color;
+       this.SetActive=false;
+   }
+   m_drawtext(l_ctx)
+  {
+    if(this.SetActive==true)
+    {
+        l_ctx.font = "50px Georgia";
+        l_ctx.fillStyle = this.color;
+        l_ctx.fillText(this.Text,this.X,this.Y);
+    }
+    
+  }
+}
+class C_panals
+{
+    constructor(l_X,l_Y,l_width,l_height,l_color)
+    {
+        this.X = l_X;
+        this.Y = l_Y;
+        this.width = l_width;
+        this.height = l_height;
+        this.color = l_color;
+        this.SetActive = false;
+    }
+    m_drawpanal(l_ctx)
+    {
+        if(this.SetActive==true)
+        {
+            l_ctx.fillStyle = this.color;
+            l_ctx.fillRect(this.X,this.Y,this.width,this.height);
+        }
+    }
+}
+class C_box
+{
+    constructor(l_width,l_color)
+    {
+        this.positionX = 0;
+        this.positionY = 0;
+        this.width = l_width;
+        this.height = 30;
+        this.color = l_color;
+    }
+    m_draw(l_ctx)
+    {
+        l_ctx.fillStyle = this.color;
+        l_ctx.fillRect(this.positionX,this.positionY,this.width,this.height);
+    }
+}
+class C_stack
+{
+    constructor(l_stackarraysize,l_Xpos,l_Ypos,l_color)
+    {
+        this.StackArray = new Array(l_stackarraysize);
+        this.stackpointer=0;
+        this.box_Xpos = l_Xpos;
+        this.box_Ypos = new Array(l_stackarraysize);
+        this.box_Ypos[0] = l_Ypos+120;
+        this.stackmaxsize = this.StackArray.length;
+        this.Rectheight = 30;
+        this.baseheight = 10;
+        this.basewidth = 150;
+        this.towerbaseX =l_Xpos-70;
+        this.towerbaseY =l_Ypos+150;
+        this.towerX = l_Xpos;
+        this.towerY = l_Ypos;
+        this.towerheight =150;
+        this.towerwidth = 10;
+        this.color = l_color;
+        for(var i=1; i<this.StackArray.length; i++)
+        {
+            this.box_Ypos[i] = this.box_Ypos[i-1]-this.Rectheight;
+        }
+    }
+    m_push(l_obj)
+    {
+         if(this.stackpointer<this.stackmaxsize)
+        {
+            this.StackArray[this.stackpointer]=l_obj;
+            this.StackArray[this.stackpointer].positionX = this.box_Xpos-(this.StackArray[this.stackpointer].width/2);
+            this.StackArray[this.stackpointer].positionY = this.box_Ypos[this.stackpointer];
+            this.stackpointer++;
+        }
+        
+    }
+    m_pop()
+    {
+        var l_popelement = null;
+        if(this.stackpointer>0)
+        {
+            this.stackpointer--;
+            l_popelement = this.StackArray[this.stackpointer];
+            this.StackArray[this.stackpointer]=null;
+        }
+        return l_popelement;
+    }
+    m_drawtowers(l_ctx)
+    {
+        l_ctx.fillStyle = this.color;
+        l_ctx.fillRect(this.towerbaseX,this.towerbaseY,this.basewidth,this.baseheight);
+        l_ctx.fillStyle = this.color;
+        l_ctx.fillRect(this.towerX,this.towerY,this.towerwidth,this.towerheight);
+    }
+     m_drawboxes(l_ctx)
+    {
+        if(this.stackpointer>0)
+        {
+            for(var i=0; i<this.stackpointer; i++)
+            {
+               this.StackArray[i].m_draw(l_ctx);
+            }
+        }
+    }
+    
+}
+var stacks = new Array(3);
+var boxes = new Array(3);
+var wintext = new C_Text(250,500,"You win","black");
+var panal = new C_panals(30,150,600,350,"pink");
+stacks[0] = new C_stack(boxes.length,100,200,"white");
+stacks[1] = new C_stack(boxes.length,350,200,"white");
+stacks[2] = new C_stack(boxes.length,600,200,"white");
+var Steps = 0;
+createbox();
+var firstclickindex = 0;
+var secondclickindex =0;
+var Clickcounter = 0;
+var firstclickboxwidth = 0;
+var sencodclickboxwidth = 0;
+function winlogic()
+{
+    for(var i=1; i<stacks.length; i++)
+    {
+        if(stacks[i].stackpointer==3)
+        {
+            wintext.SetActive=true;
+        }
+    }
+    
+}
+function f_mousedownhandler(l_keydata)
+{
+    for(var i=0; i<stacks.length; i++)
+    {
+        if(l_keydata.clientX>stacks[i].towerbaseX)
+        {
+           if(l_keydata.clientX<stacks[i].towerbaseX+stacks[i].basewidth)
+           {
+               if(l_keydata.clientY>stacks[i].towerY)
+               {
+                   if(l_keydata.clientY<stacks[i].towerY+stacks[i].towerheight)
+                   {
+                        
+                       Clickcounter++;
+                       if(Clickcounter==1)
+                       {
+                           firstclickindex = i;
+                       }
+                       if(Clickcounter==2)
+                       {
+                           secondclickindex = i; 
+                       }
+                       break;
+                   }
+               }
+           } 
+        }
+    }
+    if(Clickcounter==2)
+    {
+        
+        firstclickboxwidth =999;
+        sencodclickboxwidth = 999;
+        if(stacks[firstclickindex].stackpointer>0)
+        {
+            firstclickboxwidth = stacks[firstclickindex].StackArray[stacks[firstclickindex].stackpointer-1].width; 
+        }
+        if(stacks[secondclickindex].stackpointer>0)
+        {
+            sencodclickboxwidth = stacks[secondclickindex].StackArray[stacks[secondclickindex].stackpointer-1].width;
+        }
+        if(sencodclickboxwidth>firstclickboxwidth)
+        {
+             var l_popobj = stacks[firstclickindex].m_pop();
+             stacks[secondclickindex].m_push(l_popobj);
+             Clickcounter=0;
+             Steps++; 
+        }
+        else
+        {
+            Clickcounter=0;
+        } 
+        
+        
+    }
+}
+
+function drawobjects()
+{
+     for(var i=0; i<stacks.length; i++)
+    {
+        stacks[i].m_drawtowers(g_ctx);
+        stacks[i].m_drawboxes(g_ctx);
+    }
+    
+}
+function Stepstext(l_ctx)
+{
+   l_ctx.font = "30px Georgia";
+   l_ctx.fillStyle = "black";
+   l_ctx.fillText("Steps"+"  "+Steps,30,50);
+}
+
+function createbox()
+{
+    boxes[0] = new C_box(100,"red");
+    boxes[1] = new C_box(80,"blue");
+    boxes[2] = new C_box(60,"green");
+    for(var i=0; i<boxes.length; i++)
+    {
+        stacks[0].m_push(boxes[i]);
+    }
+}
+
+function gameloop()
+{
+  winlogic();
+  clearcanvas();
+  drawobjects();
+  wintext.m_drawtext(g_ctx);
+  Stepstext(g_ctx);
+}
+function clearcanvas()
+{
+    g_ctx.clearRect(0,0,g_canvas.width,g_canvas.height);
+    g_ctx.fillStyle="#d79f49";
+    g_ctx.fillRect(0,0,g_canvas.width,g_canvas.height);
+   
+}
+setInterval(gameloop,intervaltime);
+document.addEventListener("mousedown",f_mousedownhandler);
+</script>
+</html>

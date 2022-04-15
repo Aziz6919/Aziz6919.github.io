@@ -1,0 +1,486 @@
+<html>
+<canvas id ="mycanvas" height="600" width="900"></canvas>
+<script>
+var g_canvas = document.getElementById("mycanvas");
+var g_ctx = g_canvas.getContext("2d");
+var framerate = 30;
+var intervaltime = 1000/framerate;
+var enimy_image = new Image();
+enimy_image.src = "enimy.png";
+var background_image = new Image();
+background_image.src = "gamebackgroundmodel_1.jpeg";
+var lifeimage = new Image();
+lifeimage.src = "playerlife.png";
+var tankimage = new Image();
+tankimage.src = "tank.png";
+var turretimage = new Image();
+turretimage.src = "turret.png";
+var bottonimage = new Image();
+bottonimage.src = "restartbotton.png";
+class C_background
+{
+    constructor(l_X,l_Y,l_width,l_height,l_Image)
+    {
+        this.X = l_X;
+        this.Y = l_Y;
+        this.width = l_width;
+        this.height = l_height;
+        this.Image = l_Image;
+    }
+    m_drawbackground(l_ctx)
+    {
+        l_ctx.drawImage(this.Image,this.X,this.Y,this.width,this.height);
+        
+    }
+}
+class C_enemy
+{
+    constructor(l_X,l_Y,l_width,l_height,l_velocity,l_image,l_intialXpos,l_intialYpos,l_ResetXpostion,l_ResetYpostion)
+    {
+       this.X = l_X;
+       this.Y = l_Y;
+       this.intialXpos = l_intialXpos;
+       this.intialYpos = l_intialYpos;
+       this.ResetXposition =l_ResetXpostion;
+       this.ResetYposition = l_ResetYpostion;
+       this.width = l_width;
+       this.height = l_height;
+       this.velocity = l_velocity;
+       this.setActive = true;
+       this.Image = l_image;
+    }
+    m_drawemeny(l_ctx)
+    {
+        if(this.setActive==true)
+        {
+          l_ctx.drawImage(this.Image,this.X,this.Y,this.width,this.height);
+        }
+       
+    }
+    m_moveenemy()
+    {
+        this.X-=this.velocity;
+        
+    }
+}
+
+class C_tank
+{
+    constructor(l_X,l_Y,l_tankwidth,l_tankheight,l_turretwidth,l_turretheight,l_rotationangle,l_rotationspeed,l_tankimage,l_turretimage)
+    {
+        this.X = l_X;
+        this.Y = l_Y;
+        this.rotationangle = l_rotationangle;
+        this.tankwidth = l_tankwidth;
+        this.tankheight = l_tankheight;
+        this.turretwidth = l_turretwidth;
+        this.turrtheight = l_turretheight;
+        this.rotationspeed = l_rotationspeed;
+        this.tankimage = l_tankimage;
+        this.turretimage = l_turretimage;
+        this.bullet = new C_bullet(this.X,this.Y,10,"black");
+        this.bulletvelocityX = 15 ;
+        this.bulletvelocityY = 19;
+        this.intialvelocity = 19;
+        this.deltaX = 0;
+        this.deltaY = 0;
+        this.accelaration = -0.5;
+        this.rotateClockwise = false;
+        this.rotateanticolckwise = false;
+        this.firebullet = false;
+    }
+    m_drawtank(l_ctx)
+    {
+      
+      l_ctx.drawImage(this.tankimage,this.X-(this.tankwidth/2.2),this.Y-(this.tankheight/2),this.tankwidth,this.tankheight);
+      l_ctx.save();
+      l_ctx.translate(this.X,this.Y);
+      l_ctx.rotate((this.rotationangle)*Math.PI/180);
+      l_ctx.drawImage(this.turretimage,-(this.turretwidth/3.8),-(this.turrtheight/2),this.turretwidth,this.turrtheight);
+      l_ctx.restore();
+    }
+    m_rotatetank()
+    {
+        if(this.rotateClockwise==true)
+        {
+            this.rotationangle+=this.rotationspeed;
+           
+        }
+        if(this.rotateanticolckwise==true)
+        {
+            this.rotationangle-=this.rotationspeed;
+            
+        }
+    }
+    m_fire()
+    {
+        if(this.firebullet==true)
+        {
+            
+            this.bullet.m_lunchbullet(g_ctx);
+            
+        }
+         
+    }
+    m_managebullet()
+    {
+       if(this.firebullet==true)
+        {
+           
+            this.deltaX=this.bulletvelocityX*Math.cos((this.rotationangle)*Math.PI/180);
+            this.deltaY=this.bulletvelocityY*Math.sin((this.rotationangle)*Math.PI/180);
+            this.bullet.X+=this.deltaX;
+            this.bullet.Y+=this.deltaY;
+            this.bulletvelocityY+=this.accelaration;
+        }
+        
+    }
+}
+
+
+class C_bullet
+{
+    constructor(l_X,l_Y,l_radius,l_color)
+    {
+        this.X = l_X;
+        this.Y = l_Y;
+        this.radius = l_radius;
+        this.color = l_color;
+    }
+    m_lunchbullet(l_ctx)
+    {
+          
+           l_ctx.beginPath();
+           l_ctx.arc(this.X,this.Y,this.radius,0,2*Math.PI);
+           l_ctx.closePath();
+           l_ctx.fillStyle = this.color;
+           l_ctx.fill();
+            
+    }
+}
+
+function f_keydownhandler(l_keydata)
+{
+    if(l_keydata.keyCode==37)
+    {
+        
+        tank.rotateanticolckwise=true;
+    }
+    if(l_keydata.keyCode==39)
+    {
+        tank.rotateClockwise=true;
+    }
+    if(l_keydata.keyCode==32)
+    {
+    
+        tank.firebullet=true;
+        tank.bullet.X = tank.X;
+        tank.bullet.Y = tank.Y;
+        tank.bulletvelocityY = tank.intialvelocity;
+        
+    }
+
+}
+function f_keyuphandler(l_keydata)
+{
+    if(l_keydata.keyCode==37)
+    {
+    
+          tank.rotateanticolckwise=false;
+    }
+    if(l_keydata.keyCode==39)
+    {
+       tank.rotateClockwise=false;
+    }
+    
+}
+class C_healthbar
+{
+    constructor(l_X,l_Y,l_width,l_height,l_color)
+    {
+        this.X = l_X;
+        this.Y = l_Y;
+        this.width = l_width;
+        this.height = l_height;
+        this.color = l_color;
+    }
+    m_drawhealthbar(l_ctx)
+    {
+        l_ctx.fillStyle = this.color;
+        l_ctx.fillRect(this.X,this.Y,this.width,this.height);
+    }
+} 
+class C_playerlifeicon
+{
+    constructor(l_X,l_Y,l_width,l_height,l_image)
+    {
+        this.X = l_X;
+        this.Y = l_Y;
+        this.width = l_width;
+        this.height = l_height;
+        this.image = l_image;
+    }
+    m_drawplayerlife(l_ctx)
+    {
+        l_ctx.drawImage(this.image,this.X,this.Y,this.width,this.height);
+    }
+}
+class C_Gameoverpanel
+{
+    constructor(l_X,l_Y,l_width,l_height,l_color)
+    {
+        this.X = l_X;
+        this.Y = l_Y;
+        this.width = l_width;
+        this.height = l_height;
+        this.color = l_color;
+        this.setActive = false;
+    }
+    m_drawpanel(l_ctx)
+    {
+        if(this.setActive==true)
+        {
+            l_ctx.fillStyle = this.color;
+            l_ctx.fillRect(this.X,this.Y,this.width,this.height);
+        }
+    }
+}
+class C_Restartbotton
+{
+    constructor(l_X,l_Y,l_width,l_height,l_image)
+    {
+        this.X = l_X;
+        this.Y = l_Y;
+        this.width = l_width;
+        this.height = l_height;
+        this.image = l_image;
+        this.setActive = false;
+    }
+    m_drawbotton(l_ctx)
+    {
+        if(this.setActive==true)
+        {
+            l_ctx.drawImage(this.image,this.X,this.Y,this.width,this.height);
+        }
+        
+    }
+}
+var framecounter = 0;
+var enemys = new Array(5);
+var healthbarbackground = new C_healthbar(780,20,100,20,"white");
+var healthbar = new C_healthbar(780,20,100,20,"red");
+var tank = new C_tank(80,g_canvas.height-150,130,100,104,60,-100,10,tankimage,turretimage);
+enemys[0] = new C_enemy(800,400,150,100,1,enimy_image,1000,400,800,400);
+enemys[1] = new C_enemy(1000,400,150,100,1,enimy_image,1000,400,1000,400);
+enemys[2] = new C_enemy(1200,400,150,100,1,enimy_image,1000,400,1200,400);
+enemys[3] = new C_enemy(1600,400,150,100,1,enimy_image,1000,400,1600,400);
+enemys[4] = new C_enemy(2000,400,150,100,1,enimy_image,1000,400,2000,400);
+var gameoverpanel = new C_Gameoverpanel(250,100,400,300,"#c399b0");
+var playerlife = new C_playerlifeicon(720,8,50,50,lifeimage);   
+var background = new C_background(0,0,g_canvas.width,g_canvas.height,background_image);
+var Restartbotton = new C_Restartbotton(390,300,100,50,bottonimage);
+
+function bulletreluntch(l_canvas)
+{
+    checkpointX =tank.bullet.X+tank.bullet.radius;
+    checkpointY =tank.bullet.Y+tank.bullet.radius;
+   if(checkpointX>l_canvas.width || checkpointY>l_canvas.height)
+   {
+      tank.firebullet=false; 
+   }
+}
+var dist = 0;
+var dist1 =0;
+var enemymidX = 0;
+var enemymidY = 0;
+var checkpointX = 0;
+var checkpointY = 0;
+var score = 0;
+var tankmidX=0;
+var tankmixdY=0;
+function bulletandenimycollision()
+{
+      
+      for(var i=0; i<enemys.length; i++)
+    {
+           enemymidX = enemys[i].X+(enemys[i].width/2);
+           enemymidY = enemys[i].Y+(enemys[i].height/2);
+        dist = Math.sqrt(Math.pow(tank.bullet.X-enemymidX,2)+Math.pow(tank.bullet.Y-enemymidY,2));
+     if(dist<(tank.bullet.radius+(enemys[i].height/4)))
+    {
+            score++;
+            enemys[i].X=enemys[i].intialXpos;
+            enemys[i].Y=enemys[i].intialYpos;
+            enemys[i].setActive=true;
+            enemys[i].velocity =1;
+            break;
+            
+    }
+        
+    }
+    
+}
+function tankandenimycollision()
+{
+       tankmidX = tank.X+(tank.tankwidth/10);
+       tankmixdY = tank.Y+(tank.tankheight/6);
+     
+    for(var i=0; i<enemys.length; i++)
+    {
+        enemymidX = enemys[i].X+(enemys[i].width/2);
+        enemymidY = enemys[i].Y+(enemys[i].height/2);
+        dist1 = Math.sqrt(Math.pow(tankmidX-enemymidX,2)+Math.pow(tankmixdY-enemymidY,2))
+    if(dist1<((tank.tankwidth/2.1)+(enemys[i].height/4)))
+    {
+        score--;
+        healthbar.width-=5;
+        enemys[i].X=enemys[i].intialXpos;
+        enemys[i].Y=enemys[i].intialYpos;
+        enemys[i].setActive=true;
+        enemys[i].velocity =1;
+        break;
+    }
+    }
+    
+}
+  
+function scoremanagement(l_ctx)
+{
+    
+    l_ctx.font = "30px Georgia";
+    l_ctx.fillStyle = "black";
+    l_ctx.fillText("Score"+" "+score,0,30);
+   
+}
+function scoremanagement1()
+{
+    if(score<=0)
+    {
+        score=0;
+    }
+}
+function spwanenimy()
+{
+    for(var i=0; i<enemys.length; i++)
+    {
+        enemys[i].m_drawemeny(g_ctx);
+        
+    }
+    
+}
+function moveenemys()
+{
+    for(var i=0; i<enemys.length; i++)
+    {
+        enemys[i].m_moveenemy();
+        
+    }
+}
+function Gamemanager()
+{
+    for(var i=0; i<enemys.length; i++)
+    {
+        if(healthbar.width<=0)
+        {
+           gameoverpanel.setActive=true;
+           Restartbotton.setActive=true;
+           healthbar.width=0;
+           enemys[i].X = enemys[i].ResetXposition;
+           enemys[i].Y = enemys[i].ResetYposition;
+           enemys[i].velocity=1;
+           enemys[i].setActive=false
+            
+        }
+        
+           
+    }
+}
+function gameovertext(l_ctx)
+{
+       if(healthbar.width<=0)
+       {
+           l_ctx.font = "50px Georgia";
+           l_ctx.fillStyle="black";
+           l_ctx.fillText("GameOver",330,200);
+           l_ctx.font = "40px Georgia";
+           l_ctx.fillStyle = "black";
+           l_ctx.fillText("Score"+" "+score,380,260);
+       }
+          
+     
+       
+   
+}
+function RestartGame()
+{
+    for(var i=0; i<enemys.length; i++)
+    {
+        score=0;
+        healthbar.width =100;
+        healthdicreasing=5;
+        gameoverpanel.setActive=false;
+        Restartbotton.setActive=false;
+        enemys[i].setActive=true;
+        
+    }
+}
+function mousedownhandler(l_keydata)
+{
+    if(l_keydata.clientX>Restartbotton.X)
+    {
+        if(l_keydata.clientX<Restartbotton.X+Restartbotton.width)
+        {
+           if(l_keydata.clientY>Restartbotton.Y)
+           {
+              if(l_keydata.clientY<Restartbotton.Y+Restartbotton.height)
+              {
+                  RestartGame();
+              }
+           }
+        }
+    }
+    
+}
+function turretrotationangle()
+{
+    if(tank.rotationangle>=(-50))
+    {
+        tank.rotationangle=(-50);
+    }
+    if(tank.rotationangle<=(-80))
+    {
+        tank.rotationangle=(-80);
+    }
+}
+function gameloop()
+{
+
+    tank.m_rotatetank();
+    tank.m_managebullet();
+    bulletreluntch(g_canvas);
+    moveenemys();
+    bulletandenimycollision();
+    tankandenimycollision();
+    Gamemanager();
+    scoremanagement1();
+    turretrotationangle();
+    g_ctx.clearRect(0,0,g_canvas.width,g_canvas.height);
+    background.m_drawbackground(g_ctx);
+    scoremanagement(g_ctx);
+    tank.m_fire();
+    tank.m_drawtank(g_ctx);
+    spwanenimy();
+    healthbarbackground.m_drawhealthbar(g_ctx);
+    healthbar.m_drawhealthbar(g_ctx);
+    playerlife.m_drawplayerlife(g_ctx);
+    gameoverpanel.m_drawpanel(g_ctx);
+    gameovertext(g_ctx);
+    Restartbotton.m_drawbotton(g_ctx);
+    
+}
+setInterval(gameloop,intervaltime);
+document.addEventListener("keydown",f_keydownhandler);
+document.addEventListener("keyup",f_keyuphandler);
+document.addEventListener("mousedown",mousedownhandler);
+</script>
+</html>

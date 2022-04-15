@@ -1,0 +1,2270 @@
+<html>
+<canvas id="mycanvas" height="650" width="800"></canvas>
+<script>
+var g_canvas = document.getElementById("mycanvas");
+var g_ctx = g_canvas.getContext("2d");
+var framerate = 30;
+var intervaltime = 1000/framerate;
+var framecounter =0;
+var Aliensframecounter=0;
+var Aliensleftmove = false;
+var Aliensrightmove = true;
+var Aliensdownmove = false;
+var Aliensleftcollisioncounter_1 =0;
+var Aliensrightcollisioncounter_1 = 0;
+var Aliensleftcollisioncounter_2 =0;
+var Aliensrightcollisioncounter_2 = 0;
+var Aliensleftcollisioncounter_3 =0;
+var Aliensrightcollisioncounter_3 = 0;
+var Playebulletmove = true;
+var AliensfirebulletTime = 0;
+var Aliensstartfire=false;
+var Aliens_Array = new Array(30);
+var bunker_1 = new Array(6);
+var bunker_2 = new Array(6);
+var bunker_3 = new Array(6);
+var AlienShipbulletShootTime =0;
+var lostAlien = Aliens_Array.length-1;
+var firstAlien = 0;
+var RandomAliens = Math.floor((Math.random()*lostAlien)+firstAlien);
+var firebullet=false;
+var AliensbulletsArray = new Array(2);
+var AlienShipbulletArray = new Array(2);
+var Aliensfirtbullet = 0;
+var Alienslostbullet = AliensbulletsArray.length-1;
+var Randombullets = Math.floor((Math.random()*Aliensfirtbullet)+Alienslostbullet);
+var RandomAlienbullet =  Math.floor((Math.random()* Alienslostbullet )+ Aliensfirtbullet);
+var fireAlienbullet=false;
+var Alienshipbitmaparraycontroler=false;
+var Gamestartbuttonclick=true;
+var Gamerestartbuttonclick=false;
+var Playerlifecounter = 0;
+var Gamerestartcall = false;
+var Score = 0;
+var g_playershootingAudio = new Audio("")
+var AlienShip_bitmaparray=[0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0,
+                           0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0,
+                           0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,
+                           0,1,1,0,1,1,0,1,1,0,1,1,0,1,1,0,
+                           1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+                           0,0,1,1,1,0,0,1,1,0,0,1,1,1,0,0,
+                           0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0];
+
+
+var AlienShip_EXplosition_bitmaparray = [0,0,0,1,0,0,1,0,0,0,0,1,0,0,1,0,
+                                         0,0,0,0,1,0,0,1,0,0,1,0,0,1,0,0,
+                                         0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                                         1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,
+                                         0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                                         0,0,0,0,1,0,0,1,0,0,1,0,0,1,0,0,
+                                         0,0,0,1,0,0,1,0,0,0,0,1,0,0,1,0];
+                                         
+var Alien_1a_bitmaparray=[0,0,0,1,1,0,0,0,
+                          0,0,1,1,1,1,0,0,
+                          0,1,1,1,1,1,1,0,
+                          1,1,0,1,1,0,1,1,
+                          1,1,1,1,1,1,1,1,
+                          0,0,1,0,0,1,0,0,
+                          0,1,0,1,1,0,1,0,
+                          1,0,1,0,0,1,0,1];
+    
+    
+var Alien_1b_bitmaparray = [0,0,0,1,1,0,0,0,
+                            0,0,1,1,1,1,0,0,
+                            0,1,1,1,1,1,1,0,
+                            1,1,0,1,1,0,1,1,
+                            1,1,1,1,1,1,1,1,
+                            0,1,0,1,1,0,1,0,
+                            1,0,0,0,0,0,0,1,
+                            0,1,0,0,0,0,1,0];
+ 
+var Alien_1_Explosion_bitmaparray = [1,0,0,0,0,0,0,1,
+                                     0,1,0,0,0,0,1,0,
+                                     0,0,1,0,0,1,0,0,
+                                     1,1,0,0,0,0,1,1,
+                                     0,0,1,0,0,1,0,0,
+                                     0,1,0,0,0,0,1,0,
+                                     1,0,0,0,0,0,0,1];  
+
+
+
+
+
+
+var Alien_2a_bitmaparray = [0,0,0,0,1,1,1,1,0,0,0,0,
+                            0,1,1,1,1,1,1,1,1,1,1,0,
+                            1,1,1,1,1,1,1,1,1,1,1,1,
+                            1,1,1,0,0,1,1,0,0,1,1,1,
+                            1,1,1,1,1,1,1,1,1,1,1,1,
+                            0,0,0,1,1,0,0,1,1,0,0,0,
+                            0,0,1,1,0,1,1,0,1,1,0,0,
+                            1,1,0,0,0,0,0,0,0,0,1,1]; 
+
+var Alien_2b_bitmaparray = [0,0,0,0,1,1,1,1,0,0,0,0,
+                            0,1,1,1,1,1,1,1,1,1,1,0,
+                            1,1,1,1,1,1,1,1,1,1,1,1,
+                            1,1,1,0,0,1,1,0,0,1,1,1,
+                            1,1,1,1,1,1,1,1,1,1,1,1,
+                            0,0,0,1,1,0,0,1,1,0,0,0,
+                            0,0,1,0,0,1,1,0,0,1,0,0,
+                            0,0,0,1,0,0,0,0,1,0,0,0];
+    
+    
+
+    
+
+var Alien_2_Explosion_bitmaparray = [0,1,0,0,1,0,0,1,0,1,0,1,
+                                     0,0,1,0,0,1,1,0,1,0,1,0,
+                                     0,0,0,0,0,0,0,0,0,0,0,0,
+                                     1,1,0,0,0,0,0,0,0,0,1,1,
+                                     0,0,0,0,0,0,0,0,0,0,0,0,
+                                     0,1,0,0,1,1,0,0,1,0,1,0,
+                                     1,0,0,1,0,0,1,0,0,1,0,1];
+
+
+
+var Alien_3a_bitmaparray=[0,0,1,0,0,0,0,0,1,0,0,
+                          1,0,0,1,0,0,0,1,0,0,1,
+                          1,0,1,1,1,1,1,1,1,0,1,
+                          1,1,1,0,1,1,1,0,1,1,1,
+                          1,1,1,1,1,1,1,1,1,1,1,
+                          0,1,1,1,1,1,1,1,1,1,0,
+                          0,0,1,0,0,0,0,0,1,0,0,
+                          0,1,0,0,0,0,0,0,0,1,0];
+
+
+var Alien_3b_bitmaparray = [0,0,1,0,0,0,0,0,1,0,0,
+                            0,0,0,1,0,0,0,1,0,0,0,
+                            0,0,1,1,1,1,1,1,1,0,0,
+                            0,1,1,0,1,1,1,0,1,1,0,
+                            1,1,1,1,1,1,1,1,1,1,1,
+                            1,0,1,1,1,1,1,1,1,0,1,
+                            1,0,1,0,0,0,0,0,1,0,1,
+                            0,0,0,1,1,0,1,1,0,0,0];
+    
+var Alien_3_Explosion_bitmaparray = [1,0,0,1,0,0,0,0,1,0,1,
+                                     0,1,0,0,1,0,0,1,0,1,0,
+                                     0,0,1,0,0,1,1,0,1,0,0,
+                                     1,1,0,0,0,0,0,0,0,1,1,
+                                     0,0,1,0,0,1,1,0,1,0,0,
+                                     0,1,0,0,1,0,0,1,0,1,0,
+                                     1,0,0,1,0,0,0,0,1,0,1];
+    
+    
+
+var Alien_1_subbitmaparray = [Alien_1a_bitmaparray,Alien_1b_bitmaparray,Alien_1_Explosion_bitmaparray];
+var Alien_2_subbitmaparray = [Alien_2a_bitmaparray,Alien_2b_bitmaparray,Alien_2_Explosion_bitmaparray];
+var Alien_3_subbitmaparray = [Alien_3a_bitmaparray,Alien_3b_bitmaparray,Alien_3_Explosion_bitmaparray];
+var bunker_leftpart_bitmaparray =[0,0,0,0,0,0,0,0,0,1,
+                                  0,0,0,0,0,0,0,0,1,1,
+                                  0,0,0,0,0,0,0,1,1,1,
+                                  0,0,0,0,0,0,1,1,1,1,
+                                  0,0,0,0,0,1,1,1,1,1,
+                                  0,0,0,0,1,1,1,1,1,1,
+                                  0,0,0,1,1,1,1,1,1,1,
+                                  0,0,1,1,1,1,1,1,1,1,
+                                  0,1,1,1,1,1,1,1,1,1,
+                                  1,1,1,1,1,1,1,1,1,1];
+    
+ 
+    
+var bunker_leftpartDamage_bitmaparray =[0,0,0,0,0,0,0,0,0,1,
+                                        0,0,0,0,0,0,0,0,1,1,
+                                        0,0,0,0,0,0,0,1,0,1,
+                                        0,0,0,0,0,0,0,1,0,0,
+                                        0,0,0,0,0,0,1,0,1,1,
+                                        0,0,0,0,0,1,0,0,0,1,
+                                        0,0,0,1,1,1,0,0,0,1,
+                                        0,0,1,0,1,0,0,0,1,1,
+                                        0,0,1,0,0,0,1,1,1,1,
+                                        1,1,1,1,1,1,0,1,0,1];
+
+var bunker_Destroy_bitmapparray = [0,0,0,0,0,0,0,0,0,0,
+                                   0,0,0,0,0,0,0,0,0,0,
+                                   0,0,0,0,0,0,0,0,0,0,
+                                   0,0,0,0,0,0,0,0,0,0,
+                                   0,0,0,0,0,0,0,0,0,0,
+                                   0,0,0,0,0,0,0,0,0,0,
+                                   0,0,0,0,0,0,0,0,0,0,
+                                   0,0,0,0,0,0,0,0,0,0,
+                                   0,0,0,0,0,0,0,0,0,0,
+                                   0,0,0,0,0,0,0,0,0,0];
+    
+    
+
+var bunker_normalpart_bitmaparray =[1,1,1,1,1,1,1,1,1,1,
+                                    1,1,1,1,1,1,1,1,1,1,
+                                    1,1,1,1,1,1,1,1,1,1,
+                                    1,1,1,1,1,1,1,1,1,1,
+                                    1,1,1,1,1,1,1,1,1,1,
+                                    1,1,1,1,1,1,1,1,1,1,
+                                    1,1,1,1,1,1,1,1,1,1,
+                                    1,1,1,1,1,1,1,1,1,1,
+                                    1,1,1,1,1,1,1,1,1,1,
+                                    1,1,1,1,1,1,1,1,1,1];
+    
+    
+    
+var bunker_normalpart_Damage_bitmaparray =     [1,1,0,1,0,1,0,1,0,1,
+                                                1,0,0,0,1,1,0,0,1,0,
+                                                1,0,0,0,1,0,0,0,1,1,
+                                                1,1,0,1,0,1,0,1,0,1,
+                                                1,0,1,0,1,0,0,0,1,1,
+                                                1,1,0,0,1,0,1,1,0,1,
+                                                1,0,0,0,1,1,1,0,0,1,
+                                                1,0,0,0,1,0,0,1,1,1,
+                                                1,0,0,0,1,1,0,0,0,1,
+                                                1,0,0,0,1,1,1,0,0,1];
+    
+var bunker_rightpart_bitmaparray = [1,0,0,0,0,0,0,0,0,0,
+                                    1,1,0,0,0,0,0,0,0,0,
+                                    1,1,1,0,0,0,0,0,0,0,
+                                    1,1,1,1,0,0,0,0,0,0,
+                                    1,1,1,1,1,0,0,0,0,0,
+                                    1,1,1,1,1,1,0,0,0,0,
+                                    1,1,1,1,1,1,1,0,0,0,
+                                    1,1,1,1,1,1,1,1,0,0,
+                                    1,1,1,1,1,1,1,1,1,0,
+                                    1,1,1,1,1,1,1,1,1,1]; 
+    
+var bunker_rightpartDamage_bitmaparray = [0,0,0,0,0,0,0,0,0,0,
+                                          1,1,0,0,0,0,0,0,0,0,
+                                          1,0,1,0,0,0,0,0,0,0,
+                                          1,0,0,0,0,0,0,0,0,0,
+                                          0,1,0,0,0,0,0,0,0,0,
+                                          1,0,0,1,1,1,0,0,0,0,
+                                          1,1,0,1,1,1,0,0,0,0,
+                                          0,0,0,1,0,1,0,1,0,0,
+                                          1,1,0,0,1,0,1,1,1,0,
+                                          1,1,0,0,1,0,1,0,1,0]; 
+  
+
+ var bunker_midpart_bitmaparray = [1,1,1,1,1,1,1,1,1,1,
+                                   1,1,1,1,0,0,1,1,1,1,
+                                   1,1,1,0,0,0,0,1,1,1,
+                                   1,1,0,0,0,0,0,0,1,1,
+                                   1,0,0,0,0,0,0,0,0,1,
+                                   0,0,0,0,0,0,0,0,0,0,
+                                   0,0,0,0,0,0,0,0,0,0,
+                                   0,0,0,0,0,0,0,0,0,0,
+                                   0,0,0,0,0,0,0,0,0,0,
+                                   0,0,0,0,0,0,0,0,0,0];
+    
+var bunker_midpartDamage_bitmaparray = [1,0,0,0,1,0,0,0,0,0,
+                                        0,0,0,1,0,0,1,0,0,0,
+                                        0,0,0,0,0,0,0,1,0,0,
+                                        1,1,0,0,0,0,0,0,1,0,
+                                        0,0,0,0,0,0,0,0,0,0,
+                                        0,0,0,0,0,0,0,0,0,0,
+                                        0,0,0,0,0,0,0,0,0,0,
+                                        0,0,0,0,0,0,0,0,0,0,
+                                        0,0,0,0,0,0,0,0,0,0,
+                                        0,0,0,0,0,0,0,0,0,0];
+ 
+var Player_bitmaparray = [0,0,0,0,0,0,1,1,0,0,0,0,0,0,
+                          0,0,0,0,0,0,1,1,0,0,0,0,0,0,
+                          0,0,0,0,0,0,1,1,0,0,0,0,0,0,
+                          0,0,0,0,0,0,1,1,0,0,0,0,0,0,
+                          0,0,0,0,0,0,1,1,0,0,0,0,0,0,
+                          0,0,0,0,1,1,1,1,1,1,0,0,0,0,
+                          0,0,0,0,1,1,1,1,1,1,0,0,0,0,
+                          0,0,0,0,1,1,1,1,1,1,0,0,0,0,
+                          0,1,1,1,1,1,1,1,1,1,1,1,1,0,
+                          1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+                          1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+                          1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+                          1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+                          1,1,1,1,1,1,1,1,1,1,1,1,1,1];
+
+    
+var Player_Explosion_bitmaparray =[ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                                    0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                                    0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                                    0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                                    0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                                    0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                                    0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                                    0,0,0,0,0,0,0,1,0,0,0,0,0,0,
+                                    0,0,0,0,0,0,0,0,0,0,1,0,0,0,
+                                    0,0,0,0,0,0,1,0,0,1,1,1,0,0,
+                                    0,0,0,1,0,0,1,0,0,1,1,1,0,0,
+                                    1,0,0,0,1,0,1,1,0,1,0,0,0,0,
+                                    0,0,1,1,1,1,1,1,1,1,0,1,0,0,
+                                    0,1,1,1,1,1,1,1,1,1,1,1,0,1];
+    
+var Player_subbitmaparray = [Player_bitmaparray,Player_Explosion_bitmaparray];
+    
+class C_bullet
+{
+    constructor(l_X,l_Y,l_width,l_height,l_color)
+    {
+        this.X = l_X;
+        this.Y = l_Y;
+        this.width = l_width;
+        this.height = l_height;
+        this.color = l_color;
+        this.Active = 0;
+    }
+    m_drawbullet(l_ctx)
+    {
+        l_ctx.fillStyle = this.color;
+        l_ctx.fillRect(this.X,this.Y,this.width,this.height);
+    }
+}
+class C_Aliensbullet
+{
+    constructor(l_X,l_Y,l_width,l_height,l_color)
+    {
+        this.X = l_X;
+        this.Y = l_Y;
+        this.width = l_width;
+        this.height = l_height;
+        this.color = l_color;
+        this.Active = 0;
+    }
+    m_drawbullet(l_ctx)
+    {
+        if(this.Active==1)
+        {
+              l_ctx.fillStyle = this.color;
+              l_ctx.fillRect(this.X,this.Y,this.width,this.height);
+        } 
+    }
+    m_movebullet()
+    {
+        if(this.Active==1)
+        {
+            this.Y+=5;
+        } 
+    }
+}
+class C_square
+{
+    constructor(l_X,l_Y,l_size,l_color)
+    {
+        this.X = l_X;
+        this.Y = l_Y;
+        this.Size = l_size;
+        this.color = l_color;
+    }
+    m_drawsquares(l_ctx)
+    {
+        l_ctx.fillStyle=this.color;
+        l_ctx.fillRect(this.X,this.Y,this.Size,this.Size);
+    }
+}
+class C_Panal
+{
+    constructor(l_X,l_Y,l_width,l_height,l_color,l_boolenfactor)
+    {
+        this.X = l_X;
+        this.Y = l_Y;
+        this.width = l_width;
+        this.height = l_height;
+        this.color = l_color;
+        this.setAcive = l_boolenfactor;
+    }
+    m_drawPanel(l_ctx)
+    {
+        if(this.setAcive==true)
+        {
+            l_ctx.strokeStyle="green"
+            l_ctx.lineWidth = 20;
+            l_ctx.strokeRect(this.X,this.Y,this.width,this.height);
+            l_ctx.fillStyle =this.color;
+            l_ctx.fillRect(this.X,this.Y,this.width,this.height);
+        }
+    }
+}
+class C_button
+{
+    constructor(l_X,l_Y,l_width,l_height,l_color,l_text,l_boolenfactor)
+    {
+        this.X = l_X;
+        this.Y = l_Y;
+        this.width = l_width;
+        this.height = l_height;
+        this.color = l_color;
+        this.Text = l_text;
+        this.setAcive = l_boolenfactor;
+    }
+    m_drawbutton(l_ctx)
+    {
+        if(this.setAcive==true)
+        {
+            l_ctx.fillStyle =this.color;
+            l_ctx.fillRect(this.X,this.Y,this.width,this.height);
+            l_ctx.font = "30px Georgia";
+            l_ctx.fillStyle = "black";
+            l_ctx.fillText(this.Text,this.X+this.width/16,this.Y+this.height/1.5);
+        }
+    }
+}
+class C_Text
+{
+    constructor(l_X,l_Y,l_Text,l_size,l_boolenfactor)
+    {
+        this.X = l_X;
+        this.Y = l_Y;
+        this.Text = l_Text;
+        this.size = l_size;
+        this.setAcive = l_boolenfactor;
+    }
+    m_drawText(l_ctx)
+    {
+        if(this.setAcive==true)
+        {
+              l_ctx.font = this.size;
+              l_ctx.fillStyle = "white";
+              l_ctx.fillText(this.Text,this.X,this.Y);
+        }
+    }
+}
+class C_AlienGrid
+{
+    constructor(l_X,l_Y,l_rows,l_columns,l_bitmapArray,l_boxsize,l_movespeed,l_color)
+    {
+        this.X = l_X;
+        this.Y = l_Y;
+        this.Xpos = this.X;
+        this.Ypos = this.Y;
+        this.rows = l_rows;
+        this.columns = l_columns;
+        this.Alienresetindex=0;
+        this.ObjectbodyArray = new Array(l_rows*l_columns);
+        this.index=0;
+        this.boxsize = l_boxsize;
+        this.color = l_color;
+        this.bitmaparray = l_bitmapArray;
+        this.movespeed=l_movespeed;
+        this.setAnimate =0;
+        this.Alive=0;
+        this.ExplosionAlivetime=0;
+        this.Explosion=0;
+        this.movedirection=0;
+        for(var i=0; i<this.rows; i++)
+        {
+            for(var j=0; j<this.columns; j++)
+            {
+                this.ObjectbodyArray[this.index] = new C_square(this.Xpos,this.Ypos,this.boxsize,this.color);
+                this.index++;
+                this.Xpos+=this.boxsize;
+            }
+            this.Xpos = this.X;
+            this.Ypos+=this.boxsize;
+        } 
+        
+    } 
+    m_draw(l_ctx)
+    {
+        if(this.Alive==1)
+        {
+            if(this.setAnimate==0 && this.Explosion==0)
+           {
+            for(var i=0; i<this.ObjectbodyArray.length; i++)
+           {
+              if(this.bitmaparray[0][i]==1)
+              {
+                this.ObjectbodyArray[i].m_drawsquares(l_ctx);
+              }  
+           } 
+          }
+           if(this.setAnimate==1 && this.Explosion==0)
+           {
+            for(var i=0; i<this.ObjectbodyArray.length; i++)
+           {
+              if(this.bitmaparray[1][i]==1)
+              {
+                this.ObjectbodyArray[i].m_drawsquares(l_ctx);
+              }  
+           } 
+          }
+           if(this.Explosion==1)
+           {
+                  for(var i=0; i<this.ObjectbodyArray.length; i++)
+                 {
+                     if(this.bitmaparray[2][i]==1)
+                     {
+                          this.ObjectbodyArray[i].m_drawsquares(l_ctx);
+                     }
+                } 
+                this.ExplosionAlivetime++;
+                if(this.ExplosionAlivetime>=15)
+                {
+                    this.Alive=0;
+                }
+            }
+        }   
+    }
+    m_resetpos()
+    {
+            this.Alienresetindex=0;
+            this.Xpos = this.X;
+            this.Ypos = this.Y;
+            for(var i=0; i<this.rows; i++)
+            {
+               for(var j=0; j<this.columns; j++)
+              {
+                
+                this.ObjectbodyArray[this.Alienresetindex].X = this.Xpos;
+                this.ObjectbodyArray[this.Alienresetindex].Y = this.Ypos;
+                this.Alienresetindex++;
+                this.Xpos+=this.boxsize;
+               }
+            this.Xpos = this.X;
+            this.Ypos+=this.boxsize;
+           } 
+        
+        
+    }
+    m_move()
+    {
+      if(this.Alive)
+      {
+            if(this.movedirection==1)
+      {
+           for(var i=0; i<this.ObjectbodyArray.length; i++)
+           {
+             this.ObjectbodyArray[i].X+=this.movespeed;
+           }
+      }
+      if(this.movedirection==2)
+      {
+           for(var i=0; i<this.ObjectbodyArray.length; i++)
+           {
+             this.ObjectbodyArray[i].X-=this.movespeed;
+           }
+      }
+      if(this.movedirection==3)
+      {
+           for(var i=0; i<this.ObjectbodyArray.length; i++)
+           {
+             this.ObjectbodyArray[i].Y+=this.movespeed;
+           }
+      }
+      }
+      
+    }
+} 
+class C_bunkerGrid
+{
+    constructor(l_X,l_Y,l_rows,l_columns,l_bitmapArray,l_color)
+    {
+        this.X = l_X;
+        this.Y = l_Y;
+        this.Xpos = this.X;
+        this.Ypos = this.Y;
+        this.rows = l_rows;
+        this.columns = l_columns;
+        this.ObjectbodyArray = new Array(l_rows*l_columns);
+        this.index=0;
+        this.boxsize = 5;
+        this.color = l_color;
+        this.bitmaparray = l_bitmapArray;
+        this.movespeed=5;
+        this.Alive=0;
+        this.health = 100;
+        this.movedirection=0;
+        for(var i=0; i<this.rows; i++)
+        {
+            for(var j=0; j<this.columns; j++)
+            {
+                this.ObjectbodyArray[this.index] = new C_square(this.Xpos,this.Ypos,this.boxsize,this.color);
+                this.index++;
+                this.Xpos+=this.boxsize;
+            }
+            this.Xpos = this.X;
+            this.Ypos+=this.boxsize;
+        } 
+  
+    } 
+    m_draw(l_ctx)
+    {
+        if(this.Alive==1)
+        {
+            for(var i=0; i<this.ObjectbodyArray.length; i++)
+           {
+               if(this.bitmaparray[i]==1)
+              {
+                this.ObjectbodyArray[i].m_drawsquares(l_ctx);
+              }  
+           }
+        }
+        
+        
+    }
+    
+} 
+
+class C_PlayerGrid
+{
+    constructor(l_X,l_Y,l_rows,l_columns,l_bitmapArray,l_movespeed,l_color)
+    {
+        this.X = l_X;
+        this.Y = l_Y;
+        this.Xpos = this.X;
+        this.Ypos = this.Y;
+        this.rows = l_rows;
+        this.columns = l_columns;
+        this.ObjectbodyArray = new Array(l_rows*l_columns);
+        this.index=0;
+        this.boxsize = 5;
+        this.color = l_color;
+        this.bitmaparray = l_bitmapArray;
+        this.movespeed=l_movespeed;
+        this.Alive=0;
+        this.Active=1;
+        this.Explosion=0;
+        this.ExplosionTime=0;
+        this.movedirection=0;
+        this.bulletsArray = new Array(20);
+        for(var i=0; i<this.rows; i++)
+        {
+            for(var j=0; j<this.columns; j++)
+            {
+                this.ObjectbodyArray[this.index] = new C_square(this.Xpos,this.Ypos,this.boxsize,this.color);
+                this.index++;
+                this.Xpos+=this.boxsize;
+            }
+            this.Xpos = this.X;
+            this.Ypos+=this.boxsize;
+        } 
+        for(var i=0; i<this.bulletsArray.length; i++)
+        {
+            this.bulletsArray[i] = new C_bullet(this.ObjectbodyArray[this.columns/2].X,this.ObjectbodyArray[this.columns/2].Y,5,20,"blue");
+        }
+    }
+    m_draw(l_ctx)
+    {
+        if(this.Alive==1)
+        {
+              if(this.Active==1 && this.Explosion==0)
+             {
+                 for(var i=0; i<this.ObjectbodyArray.length; i++)
+                {
+                  if(this.bitmaparray[0][i]==1)
+                 {
+                     this.ObjectbodyArray[i].m_drawsquares(l_ctx);
+                 }  
+               }
+           }
+           if(this.Explosion==1)
+           {
+                for(var i=0; i<this.ObjectbodyArray.length; i++)
+                {
+                  if(this.bitmaparray[1][i]==1)
+                 {
+                     this.ObjectbodyArray[i].m_drawsquares(l_ctx);
+                 }  
+               }
+               this.Active=0;
+               this.ExplosionTime++;
+               if(this.ExplosionTime>10)
+               {
+                   this.Explosion=0;
+                   this.ExplosionTime=0;
+                   this.Active=1;
+               }
+           }
+        }
+        
+    
+    }
+    m_drawbullets(l_ctx)
+    {
+        if(this.Alive==1)
+        { 
+            
+             for(var i=0; i<this.bulletsArray.length; i++)
+           {
+              if(this.bulletsArray[i].Active==1)
+               {
+                   this.bulletsArray[i].m_drawbullet(l_ctx);
+               }
+           }
+            
+        }
+           
+    }
+    m_shootingbullets()
+    {
+        if(this.Alive==1)
+        {
+            for(var i=0; i<this.bulletsArray.length; i++)
+           {
+               if(this.bulletsArray[i].Active==1)
+               {
+                   this.bulletsArray[i].Y-=5;
+               }
+               
+           }
+        }
+           
+    }
+    m_move()
+    {
+      if(this.Alive==1)
+      {
+          
+          if(this.movedirection==1)
+         {
+           for(var i=0; i<this.ObjectbodyArray.length; i++)
+           {
+             this.ObjectbodyArray[i].X+=this.movespeed;
+             
+           }
+         }
+          if(this.movedirection==2)
+         {
+           for(var i=0; i<this.ObjectbodyArray.length; i++)
+           {
+             this.ObjectbodyArray[i].X-=this.movespeed;
+           }
+         }
+          
+      }
+      
+    }
+} 
+class C_AlienShip
+{
+    constructor(l_X,l_Y,l_rows,l_columns,l_bitmapArray,l_movespeed,l_color)
+    {
+        this.X = l_X;
+        this.Y = l_Y;
+        this.Xpos = this.X;
+        this.Ypos = this.Y;
+        this.rows = l_rows;
+        this.columns = l_columns;
+        this.ObjectbodyArray = new Array(l_rows*l_columns);
+        this.index=0;
+        this.boxsize = 5;
+        this.color = l_color;
+        this.bitmaparray = l_bitmapArray;
+        this.movespeed=l_movespeed;
+        this.bulletsArray = new Array(2);
+        this.Alive=0;
+        for(var i=0; i<this.rows; i++)
+        {
+            for(var j=0; j<this.columns; j++)
+            {
+                this.ObjectbodyArray[this.index] = new C_square(this.Xpos,this.Ypos,this.boxsize,this.color);
+                this.index++;
+                this.Xpos+=this.boxsize;
+            }
+            this.Xpos = this.X;
+            this.Ypos+=this.boxsize;
+        } 
+        for(var i=0; i<this.bulletsArray.length; i++)
+        {
+            this.bulletsArray[i] = new C_bullet(this.ObjectbodyArray[this.columns/2].X,this.ObjectbodyArray[this.columns/2].Y,2,20,"blue");
+        }
+    } 
+    m_draw(l_ctx)
+    {
+         if(this.Alive==1)
+         {
+             for(var i=0; i<this.ObjectbodyArray.length; i++)
+            {
+                if(this.bitmaparray[i]==1)
+                {
+                    this.ObjectbodyArray[i].m_drawsquares(l_ctx);
+                }  
+                
+            }
+         }
+            
+    }
+    m_move()
+    {
+         if(this.Alive==1)
+         {
+             for(var i=0; i<this.ObjectbodyArray.length; i++)
+             {
+                 this.ObjectbodyArray[i].X-=this.movespeed;
+             }
+         } 
+          
+      
+      
+    }
+} 
+class C_Grid
+{
+    constructor(l_X,l_Y,l_rows,l_columns,l_size,l_bitmapArray,l_color,l_boolenfactor)
+    {
+        this.X = l_X;
+        this.Y = l_Y;
+        this.Xpos = this.X;
+        this.Ypos = this.Y;
+        this.rows = l_rows;
+        this.columns = l_columns;
+        this.ObjectbodyArray = new Array(l_rows*l_columns);
+        this.index=0;
+        this.boxsize = l_size;
+        this.color = l_color;
+        this.bitmaparray = l_bitmapArray;
+        this.setAcive=l_boolenfactor;
+        for(var i=0; i<this.rows; i++)
+        {
+            for(var j=0; j<this.columns; j++)
+            {
+                this.ObjectbodyArray[this.index] = new C_square(this.Xpos,this.Ypos,this.boxsize,this.color);
+                this.index++;
+                this.Xpos+=this.boxsize;
+            }
+            this.Xpos = this.X;
+            this.Ypos+=this.boxsize;
+        } 
+        
+    } 
+    m_draw(l_ctx)
+    {
+        if(this.setAcive==true)
+        {
+             for(var i=0; i<this.ObjectbodyArray.length; i++)
+            {
+                if(this.bitmaparray[i]==1)
+                {
+                    this.ObjectbodyArray[i].m_drawsquares(l_ctx);
+                }   
+            }
+        }    
+    }
+     
+} 
+var alienShip = new C_AlienShip(g_canvas.width,70,7,16,AlienShip_bitmaparray,10,"red");
+var Player = new C_PlayerGrid(330,570,17,14,Player_subbitmaparray,5,"#7ff877");
+var Gamemanu = new C_Panal(200,100,400,400,"black",true);
+var GameOvermanu = new C_Panal(200,100,400,400,"black",false);
+var GamemanualienShip = new C_Grid(300,200,7,16,4,AlienShip_bitmaparray,"red",true);
+var GamemanuAlien_1 = new C_Grid(320,250,8,8,3,Alien_1a_bitmaparray,"white",true);
+var GamemanuAlien_2 = new C_Grid(315,300,8,12,3,Alien_2a_bitmaparray,"white",true);
+var GamemanuAlien_3 = new C_Grid(315,350,8,11,3,Alien_3a_bitmaparray,"white",true);
+var Playerlife_1 = new C_Grid(650,10,17,14,3,Player_bitmaparray,"#7ff877",false);
+var Playerlife_2 = new C_Grid(700,10,17,14,3,Player_bitmaparray,"#7ff877",false);
+var Playerlife_3 = new C_Grid(750,10,17,14,3,Player_bitmaparray,"#7ff877",false);
+var AssignhitalienShippoints = new C_Text(380,220,"="+" "+" "+"100"+" "+"Points","15px Georgia",true);
+var AssignhitAlien_1Points = new C_Text(380,270,"="+" "+" "+"30"+" "+"Points","15px Georgia",true);
+var AssignhitAlien_2Points = new C_Text(380,315,"="+" "+" "+"20"+" "+"Points","15px Georgia",true);
+var AssignhitAlien_3Points = new C_Text(380,365,"="+" "+" "+"10"+" "+"Points","15px Georgia",true);
+var Gamestartbutton = new C_button(310,425,170,50,"white","Play"+" "+"Game",true);
+var Gamerestartbutton = new C_button(310,350,170,50,"white","Play"+" "+"Again",false);
+var GameOverText = new C_Text(320,200,"Game"+" "+"Over","30px Georgia",false);
+var GamecompleteText = new C_Text(320,200,"Game"+" "+"Complete","30px Georgia",false);
+var GamescoreText = new C_Text(320,300,"Score"+" "+Score,"30px Georgia",false);
+var GameTitle = new C_Text(300,150,"Space"+" "+"Invaders","30px Georgia",true);
+var bunkersArray = new Array(3);
+function createbunkers()
+{
+    bunker_1[0] = new C_bunkerGrid(20,450,10,10,bunker_leftpart_bitmaparray,"#7ff877");
+    bunker_1[1] = new C_bunkerGrid(70,450,10,10,bunker_normalpart_bitmaparray,"#7ff877");
+    bunker_1[2] = new C_bunkerGrid(120,450,10,10,bunker_rightpart_bitmaparray,"#7ff877");
+    bunker_1[3] = new C_bunkerGrid(20,500,10,10,bunker_normalpart_bitmaparray,"#7ff877");
+    bunker_1[4] = new C_bunkerGrid(70,500,10,10,bunker_midpart_bitmaparray,"#7ff877");
+    bunker_1[5] = new C_bunkerGrid(120,500,10,10,bunker_normalpart_bitmaparray,"#7ff877");
+    bunker_2[0] = new C_bunkerGrid(320,450,10,10,bunker_leftpart_bitmaparray,"#7ff877");
+    bunker_2[1] = new C_bunkerGrid(370,450,10,10,bunker_normalpart_bitmaparray,"#7ff877");
+    bunker_2[2] = new C_bunkerGrid(420,450,10,10,bunker_rightpart_bitmaparray,"#7ff877");
+    bunker_2[3] = new C_bunkerGrid(320,500,10,10,bunker_normalpart_bitmaparray,"#7ff877");
+    bunker_2[4] = new C_bunkerGrid(370,500,10,10,bunker_midpart_bitmaparray,"#7ff877");
+    bunker_2[5] = new C_bunkerGrid(420,500,10,10,bunker_normalpart_bitmaparray,"#7ff877");  
+    bunker_3[0] = new C_bunkerGrid(620,450,10,10,bunker_leftpart_bitmaparray,"#7ff877");
+    bunker_3[1] = new C_bunkerGrid(670,450,10,10,bunker_normalpart_bitmaparray,"#7ff877");
+    bunker_3[2] = new C_bunkerGrid(720,450,10,10,bunker_rightpart_bitmaparray,"#7ff877");
+    bunker_3[3] = new C_bunkerGrid(620,500,10,10,bunker_normalpart_bitmaparray,"#7ff877");
+    bunker_3[4] = new C_bunkerGrid(670,500,10,10,bunker_midpart_bitmaparray,"#7ff877");
+    bunker_3[5] = new C_bunkerGrid(720,500,10,10,bunker_normalpart_bitmaparray,"#7ff877");
+    bunkersArray[0] = bunker_1;
+    bunkersArray[1] = bunker_2;
+    bunkersArray[2] = bunker_3;
+}
+createbunkers();
+function createAliens(l_row,l_column)
+{
+    var l_X=50;
+    var l_Y=130;
+    var l_Xpos=l_X;
+    var l_Ypos=l_Y;
+    var Aliensrows = 8;
+    var index = 0;
+    var distanceforAlientoAlien = 40;
+    var bitmapcolumncount;
+    var Alienbitmaps;
+    
+    for(var i=0; i<l_row; i++)
+    {
+        for(var j=0; j<l_column; j++)
+        {
+            if(i==0)
+            {
+                bitmapcolumncount=8;
+                Alienbitmaps = Alien_1_subbitmaparray;
+            }
+            if(i==1)
+            {
+                bitmapcolumncount=12;
+                Alienbitmaps = Alien_2_subbitmaparray;
+            }
+            if(i==2)
+            {
+                bitmapcolumncount=11;
+                Alienbitmaps = Alien_3_subbitmaparray;
+            }
+            Aliens_Array[index] = new C_AlienGrid(l_Xpos,l_Ypos,Aliensrows,bitmapcolumncount,Alienbitmaps,3,1,"white");
+            index++;
+            l_Xpos+=distanceforAlientoAlien;
+        }
+        l_Xpos = l_X;
+        l_Ypos+=distanceforAlientoAlien;
+    }
+} 
+createAliens(3,10);
+function Alienshipreset()
+{
+    if(alienShip.ObjectbodyArray[0].X<=-100 || Alienshipbitmaparraycontroler==true)
+    {
+            var intialXpos = g_canvas.width;
+            var finalXpos = intialXpos;
+            var index=0;
+        alienShip.bitmaparray=AlienShip_bitmaparray;
+        for(var i=0; i<alienShip.rows; i++)
+        {
+            for(var j=0; j<alienShip.columns; j++)
+            {
+                alienShip.ObjectbodyArray[index].X = finalXpos;
+                index++;
+                finalXpos+=alienShip.boxsize;
+            }
+            finalXpos = intialXpos;
+        }
+        Alienshipbitmaparraycontroler=false;
+     }
+    
+    
+}
+function AlienShipExplosion()
+{
+    for(var i=0; i<Player.bulletsArray.length; i++)
+    {
+        for(var j=0; j<alienShip.bitmaparray.length; j++)
+        {
+            if(alienShip.bitmaparray[j]==1)
+            {
+              if(alienShip.ObjectbodyArray[j].X<Player.bulletsArray[i].X+Player.bulletsArray[i].width)
+              {
+                 if(Player.bulletsArray[i].X<alienShip.ObjectbodyArray[j].X+alienShip.boxsize)
+                 {
+                   if(alienShip.ObjectbodyArray[j].Y<Player.bulletsArray[i].Y+Player.bulletsArray[i].height)
+                   {
+                       if(Player.bulletsArray[i].Y<alienShip.ObjectbodyArray[j].Y+alienShip.boxsize)
+                       {
+                           Score+=100;
+                           alienShip.bitmaparray = AlienShip_EXplosition_bitmaparray;
+                           Alienshipbitmaparraycontroler=true;
+                           Player.bulletsArray[i].X = Player.ObjectbodyArray[Player.columns/2].X;
+                           Player.bulletsArray[i].Y = Player.ObjectbodyArray[Player.columns/2].Y;
+                           Player.bulletsArray[i].Active=0;
+                           break;
+                       }
+                   }
+                 }
+              }
+            }
+        }
+        
+    } 
+}
+function l_keyDownhandler(l_keydata)
+{
+    if(l_keydata.keyCode==37)
+    {
+        Player.movedirection=2;
+    }
+    if(l_keydata.keyCode==39)
+    {
+        Player.movedirection=1;
+    }
+    if(l_keydata.keyCode==32)
+    {
+        playerbulletsshooting();
+             
+    }
+}
+function l_keyuphandler(l_keydata)
+{
+    if(l_keydata.keyCode==37)
+    {
+        Player.movedirection=0;
+    }
+    if(l_keydata.keyCode==39)
+    {
+        Player.movedirection=0;
+    }
+}
+function l_mousedownhandler(l_keydata)
+{
+    if(l_keydata.clientX>Gamestartbutton.X)
+    {
+        if(l_keydata.clientX<Gamestartbutton.X+Gamestartbutton.width)
+        {
+            if(l_keydata.clientY>Gamestartbutton.Y)
+            {
+                if(l_keydata.clientY<Gamestartbutton.Y+Gamestartbutton.height)
+                {
+                    if(Gamestartbuttonclick==true)
+                    {
+                        GameStart();
+                    }
+                    
+                }
+            }
+        }
+    }
+    if(l_keydata.clientX>Gamerestartbutton.X)
+    {
+        if(l_keydata.clientX<Gamerestartbutton.X+Gamerestartbutton.width)
+        {
+            if(l_keydata.clientY>Gamerestartbutton.Y)
+            {
+                if(l_keydata.clientY<Gamerestartbutton.Y+Gamerestartbutton.height)
+                {
+                    if(Gamerestartbuttonclick==true)
+                    {
+                        Gamerestart();
+                    }
+                }
+            }
+        }
+    }
+}
+function playerboundarycollision()
+{
+     var intialXpos_1 =g_canvas.width-(Player.columns*Player.boxsize);
+     var finalXpos_1 =intialXpos_1;
+     var intialXpos_2 = 0;
+     var finalXpos_2 = intialXpos_2;
+     var index=0;
+     var index_1=0;
+    if(Player.ObjectbodyArray[Player.columns-1].X+Player.ObjectbodyArray[Player.columns-1].Size>g_canvas.width)
+    {
+           
+          for(var i=0; i<Player.rows; i++)
+          {
+              for(var j=0; j<Player.columns; j++)
+              {
+                  Player.ObjectbodyArray[index].X = finalXpos_1;
+                  index++;
+                  finalXpos_1+=Player.boxsize;
+              }
+              finalXpos_1 = intialXpos_1;
+          }
+    }
+     if(Player.ObjectbodyArray[0].X<0)
+    {
+         
+        for(var i=0; i<Player.rows; i++)
+        {
+            for(var j=0; j<Player.columns; j++)
+            {
+                Player.ObjectbodyArray[index_1].X = finalXpos_2;
+                index_1++;
+                finalXpos_2+=Player.boxsize;
+            }
+            finalXpos_2 = intialXpos_2;
+        }
+    }
+}
+
+
+function drawAlines(l_ctx)
+{
+    for(var i=0; i<Aliens_Array.length; i++)
+    {
+        Aliens_Array[i].m_draw(l_ctx);
+    }
+}
+
+function drawbunker(l_ctx)
+{
+    for(var i=0; i<bunker_1.length; i++)
+    {
+        bunker_1[i].m_draw(l_ctx);
+        bunker_2[i].m_draw(l_ctx);
+        bunker_3[i].m_draw(l_ctx);
+    }
+    
+}
+function AnimateAliens()
+{
+    Aliensframecounter++;
+    if(Aliensframecounter>framerate)
+    {
+        Aliensframecounter=0;
+        for(var i=0; i<Aliens_Array.length; i++)
+        {
+            Aliens_Array[i].setAnimate=1;
+        }   
+    }
+    if(Aliensframecounter==(framerate/2))
+    {
+        for(var i=0; i<Aliens_Array.length; i++)
+        {
+            Aliens_Array[i].setAnimate=0;
+        }   
+    }
+}
+
+function finalmoveAliens()
+{
+    
+    
+    if(Aliensrightmove==true && Aliensleftmove==false && Aliensdownmove==false)
+    {
+        for(var i=0; i<Aliens_Array.length; i++)
+       {
+          Aliens_Array[i].movedirection=1;
+          
+       }
+    }
+    if(Aliensleftmove==true && Aliensrightmove==false && Aliensdownmove==false)
+    {
+        for(var i=0; i<Aliens_Array.length; i++)
+       {
+          Aliens_Array[i].movedirection=2;
+          
+       }
+    }
+    if(Aliensdownmove==true && Aliensrightmove==false && Aliensleftmove==false)
+    {
+        for(var i=0; i<Aliens_Array.length; i++)
+       {
+          Aliens_Array[i].movedirection=3;
+          
+       }
+    }
+    
+}
+function Alien_1_movepath()
+{
+    for(var i=0; i<Aliens_Array.length-20; i++)
+    {
+        for(var j=0; j<Aliens_Array[10].ObjectbodyArray.length; j++)
+        {
+            if(Aliens_Array[i].bitmaparray[0][j]==1 || Aliens_Array[i].bitmaparray[1][j]==1)
+            {
+                var AliensXpos = Aliens_Array[i].ObjectbodyArray[j].X;
+                var Alienssize = Aliens_Array[i].boxsize;
+            if((AliensXpos+Alienssize)>g_canvas.width)
+           {
+             Aliensrightmove=false;
+             Aliensdownmove=true;
+             Aliensrightcollisioncounter_1++;
+            if(Aliensrightcollisioncounter_1>5)
+            {
+              Aliensrightcollisioncounter_1=0;
+              Aliensdownmove=false;
+              Aliensleftmove=true;
+           }
+        
+          }
+           if(AliensXpos<0)
+          {
+            Aliensleftmove=false;
+            Aliensdownmove=true;
+            Aliensleftcollisioncounter_1++;
+           if(Aliensleftcollisioncounter_1>5)
+          {
+            Aliensleftcollisioncounter_1=0;
+            Aliensdownmove=false;
+            Aliensrightmove=true;
+          }
+         }
+       }
+    }
+  }
+     
+}
+function Alien_2_movepath()
+{
+    for(var i=10; i<Aliens_Array.length-10; i++)
+    {
+        for(var j=0; j<Aliens_Array[10].ObjectbodyArray.length; j++)
+        {
+            if(Aliens_Array[i].bitmaparray[0][j]==1 || Aliens_Array[i].bitmaparray[1][j]==1)
+            {
+                var AliensXpos = Aliens_Array[i].ObjectbodyArray[j].X;
+                var Alienssize = Aliens_Array[i].boxsize;
+            if((AliensXpos+Alienssize)>g_canvas.width)
+           {
+             Aliensrightmove=false;
+             Aliensdownmove=true;
+             Aliensrightcollisioncounter_2++;
+            if(Aliensrightcollisioncounter_2>5)
+            {
+              Aliensrightcollisioncounter_2=0;
+              Aliensdownmove=false;
+              Aliensleftmove=true;
+           }
+        
+          }
+           if(AliensXpos<0)
+          {
+            Aliensleftmove=false;
+            Aliensdownmove=true;
+            Aliensleftcollisioncounter_2++;
+           if(Aliensleftcollisioncounter_2>5)
+          {
+            Aliensleftcollisioncounter_2=0;
+            Aliensdownmove=false;
+            Aliensrightmove=true;
+          }
+         }
+       }
+    }
+  }
+     
+}
+function Alien_3_movepath()
+{
+    for(var i=20; i<Aliens_Array.length; i++)
+    {
+        for(var j=0; j<Aliens_Array[20].ObjectbodyArray.length; j++)
+        {
+            if(Aliens_Array[i].bitmaparray[0][j]==1 || Aliens_Array[i].bitmaparray[1][j]==1)
+            {
+                var AliensXpos = Aliens_Array[i].ObjectbodyArray[j].X;
+                var Alienssize = Aliens_Array[i].boxsize;
+            if((AliensXpos+Alienssize)>g_canvas.width)
+           {
+             Aliensrightmove=false;
+             Aliensdownmove=true;
+             Aliensrightcollisioncounter_3++;
+            if(Aliensrightcollisioncounter_3>5)
+            {
+              Aliensrightcollisioncounter_3=0;
+              Aliensdownmove=false;
+              Aliensleftmove=true;
+           }
+        
+          }
+           if(AliensXpos<0)
+          {
+            Aliensleftmove=false;
+            Aliensdownmove=true;
+            Aliensleftcollisioncounter_3++;
+           if(Aliensleftcollisioncounter_3>5)
+          {
+            Aliensleftcollisioncounter_3=0;
+            Aliensdownmove=false;
+            Aliensrightmove=true;
+          }
+         }
+       }
+    }
+  }
+     
+}
+function Aliensmovepath()
+{
+    Alien_1_movepath();
+    Alien_2_movepath();
+    Alien_3_movepath();
+}
+function playerbulletsshooting()
+{
+        for(var i=0; i<Player.bulletsArray.length; i++)
+        {
+            if(Player.bulletsArray[i].Active==0)
+            {
+                Player.bulletsArray[i].X = Player.ObjectbodyArray[Player.columns/2].X;
+                Player.bulletsArray[i].Active=1;
+                break;
+            }
+            
+        }
+}
+
+function Playerbullentsboundarycollision()
+{
+    for(var i=0; i<Player.bulletsArray.length; i++)
+    {
+        if(Player.bulletsArray[i].Y<0)
+        {
+            Player.bulletsArray[i].X = Player.ObjectbodyArray[Player.columns/2].X;
+            Player.bulletsArray[i].Y = Player.ObjectbodyArray[Player.columns/2].Y;
+            Player.bulletsArray[i].Active=0;
+            break;
+            
+        }
+    }
+}
+function intialmoveAliens()
+{
+     for(var i=0; i<Aliens_Array.length; i++)
+    {
+        Aliens_Array[i].m_move();
+    }
+}
+
+function Aliensshootingbullets()
+{
+    AliensfirebulletTime++;
+    if(AliensfirebulletTime>framerate)
+    {
+        AliensfirebulletTime=0;
+        Aliensbulletshootstart();
+    }
+    
+}
+function Aliensbulletshootstart()
+{
+   
+    for(var i=0; i<AliensbulletsArray.length; i++)
+    {
+         if(AliensbulletsArray[i].Active==0)
+         {
+             RandomAliens= Math.floor((Math.random()*lostAlien)+firstAlien);
+               if(Aliens_Array[RandomAliens].Alive==1)
+              {
+                
+                     AliensbulletsArray[i].X = Aliens_Array[RandomAliens].ObjectbodyArray[Aliens_Array[RandomAliens].rows/2].X;
+                     AliensbulletsArray[i].Y =       Aliens_Array[RandomAliens].ObjectbodyArray[Aliens_Array[RandomAliens].rows/2].Y;
+                     AliensbulletsArray[i].Active=1;
+                     break;  
+            }
+         } 
+    }  
+}
+
+function Aliensbulletcollisiontoboundary()
+{
+    for(var i=0; i<AliensbulletsArray.length; i++)
+    {
+           RandomAliens= Math.floor((Math.random()*lostAlien)+firstAlien);
+               if(Aliens_Array[RandomAliens].Alive==1)
+               {
+                   if(AliensbulletsArray[i].Y+AliensbulletsArray[i].height>g_canvas.width)
+                   {
+                          
+                           AliensbulletsArray[i].X = Aliens_Array[RandomAliens].ObjectbodyArray[Aliens_Array[RandomAliens].rows/2].X;
+                           AliensbulletsArray[i].Y = Aliens_Array[RandomAliens].ObjectbodyArray[Aliens_Array[RandomAliens].rows/2].Y;
+                           AliensbulletsArray[i].Active=0;
+                           break;
+                   }
+                   
+              }
+       
+    }
+    
+}
+
+function createAliensbullets()
+{
+    for(var i=0; i<AliensbulletsArray.length; i++)
+    {
+        AliensbulletsArray[i] = new C_Aliensbullet(100,100,5,20,"red");
+    }
+}
+createAliensbullets();
+function Aliensbulletmove()
+{
+       
+       for(var i=0; i<AliensbulletsArray.length; i++)
+       {
+           AliensbulletsArray[i].m_movebullet();
+       } 
+}
+function  drawAlienbullets(l_ctx)
+{
+     for(var i=0; i<AliensbulletsArray.length; i++)
+    {
+        AliensbulletsArray[i].m_drawbullet(l_ctx);
+    } 
+}
+function bulletconllisontobunkerprats_1()
+{
+    for(var i=0; i<Player.bulletsArray.length; i++)
+    {
+        for(var j=0; j<AliensbulletsArray.length; j++)
+        {
+            for(var k=0; k<bunkersArray.length; k++)
+            {
+                for(var l=0; l<bunkersArray[0][0].bitmaparray.length; l++)
+                {
+                    if(bunkersArray[k][0].bitmaparray[l]==1)
+                    {
+                              var PlayerbulletXpos = Player.bulletsArray[i].X;
+                              var PlayerbulletYpos = Player.bulletsArray[i].Y;
+                              var Playerbulletwidth = Player.bulletsArray[i].width;
+                              var Playerbulletheight = Player.bulletsArray[i].height;
+                              var AliensbulletXpos = AliensbulletsArray[j].X;
+                              var AliensbulletYpos = AliensbulletsArray[j].Y;
+                              var Aliensbulletwidth = AliensbulletsArray[j].width;
+                              var Aliensbulletheight = AliensbulletsArray[j].height;
+                              var bunkerXpos = bunkersArray[k][0].ObjectbodyArray[l].X;
+                              var bunkerYpos = bunkersArray[k][0].ObjectbodyArray[l].Y;
+                              var bunkersize = bunkersArray[k][0].boxsize;
+                            if(bunkerXpos<PlayerbulletXpos+Playerbulletwidth)
+                           {
+                                 if(PlayerbulletXpos<bunkerXpos+bunkersize)
+                                {
+                                   if(bunkerYpos<PlayerbulletYpos+Playerbulletheight)
+                                  {
+                                      if(PlayerbulletYpos<bunkerYpos+bunkersize)
+                                     {
+                                              bunkersArray[k][0].health-=10;
+                                              Player.bulletsArray[i].X=Player.ObjectbodyArray[Player.columns/2].X;
+                                              Player.bulletsArray[i].Y=Player.ObjectbodyArray[Player.columns/2].Y;
+                                              Player.bulletsArray[i].Active=0;
+                                              break;
+                                         
+                                     }
+                                 }
+                              }
+                          }
+                           if(bunkerXpos<AliensbulletXpos+Aliensbulletwidth)
+                           {
+                                 if(AliensbulletXpos<bunkerXpos+bunkersize)
+                                {
+                                   if(bunkerYpos<AliensbulletYpos+Aliensbulletheight)
+                                  {
+                                      if(AliensbulletYpos<bunkerYpos+bunkersize)
+                                     {
+                                          bunkersArray[k][0].bitmaparray = bunker_leftpartDamage_bitmaparray;
+                                          bunkersArray[k][0].health-=10;
+                                           RandomAliens = Math.floor((Math.random()*lostAlien)+firstAlien);
+                                          AliensbulletsArray[j].X = Aliens_Array[RandomAliens].ObjectbodyArray[Aliens_Array[RandomAliens].rows/2].X;
+                                         AliensbulletsArray[j].Y = Aliens_Array[RandomAliens].ObjectbodyArray[Aliens_Array[RandomAliens].rows/2].Y;
+                                         AliensbulletsArray[j].Active=0;
+                                         break;
+                                     }
+                                 }
+                              }
+                          }
+                        
+                    }
+                }
+            }
+        }
+    }
+}
+function bulletconllisontobunkerprats_2()
+{
+    for(var i=0; i<Player.bulletsArray.length; i++)
+    {
+        for(var j=0; j<AliensbulletsArray.length; j++)
+        {
+            for(var k=0; k<bunkersArray.length; k++)
+            {
+                for(var l=0; l<bunkersArray[0][0].bitmaparray.length; l++)
+                {
+                    if(bunkersArray[k][1].bitmaparray[l]==1)
+                    {
+                              var PlayerbulletXpos = Player.bulletsArray[i].X;
+                              var PlayerbulletYpos = Player.bulletsArray[i].Y;
+                              var Playerbulletwidth = Player.bulletsArray[i].width;
+                              var Playerbulletheight = Player.bulletsArray[i].height;
+                              var AliensbulletXpos = AliensbulletsArray[j].X;
+                              var AliensbulletYpos = AliensbulletsArray[j].Y;
+                              var Aliensbulletwidth = AliensbulletsArray[j].width;
+                              var Aliensbulletheight = AliensbulletsArray[j].height;
+                              var bunkerXpos = bunkersArray[k][1].ObjectbodyArray[l].X;
+                              var bunkerYpos = bunkersArray[k][1].ObjectbodyArray[l].Y;
+                              var bunkersize = bunkersArray[k][1].boxsize;
+                            if(bunkerXpos<PlayerbulletXpos+Playerbulletwidth)
+                           {
+                                 if(PlayerbulletXpos<bunkerXpos+bunkersize)
+                                {
+                                   if(bunkerYpos<PlayerbulletYpos+Playerbulletheight)
+                                  {
+                                      if(PlayerbulletYpos<bunkerYpos+bunkersize)
+                                     {
+                                        
+                                           bunkersArray[k][0].health-=10;
+                                         Player.bulletsArray[i].X=Player.ObjectbodyArray[Player.columns/2].X;
+                                              Player.bulletsArray[i].Y=Player.ObjectbodyArray[Player.columns/2].Y;
+                                              Player.bulletsArray[i].Active=0;
+                                              break;
+                                         
+                                     }
+                                 }
+                              }
+                          }
+                           if(bunkerXpos<AliensbulletXpos+Aliensbulletwidth)
+                           {
+                                 if(AliensbulletXpos<bunkerXpos+bunkersize)
+                                {
+                                   if(bunkerYpos<AliensbulletYpos+Aliensbulletheight)
+                                  {
+                                      if(AliensbulletYpos<bunkerYpos+bunkersize)
+                                     {
+                                          bunkersArray[k][0].health-=10;
+                                           RandomAliens = Math.floor((Math.random()*lostAlien)+firstAlien);
+                                          AliensbulletsArray[j].X = Aliens_Array[RandomAliens].ObjectbodyArray[Aliens_Array[RandomAliens].rows/2].X;
+                                         AliensbulletsArray[j].Y = Aliens_Array[RandomAliens].ObjectbodyArray[Aliens_Array[RandomAliens].rows/2].Y;
+                                         AliensbulletsArray[j].Active=0;
+                                         break;
+                                     }
+                                 }
+                              }
+                          }
+                        
+                    }
+                }
+            }
+        }
+    }
+}
+function bulletconllisontobunkerprats_3()
+{
+    for(var i=0; i<Player.bulletsArray.length; i++)
+    {
+        for(var j=0; j<AliensbulletsArray.length; j++)
+        {
+            for(var k=0; k<bunkersArray.length; k++)
+            {
+                for(var l=0; l<bunkersArray[0][0].bitmaparray.length; l++)
+                {
+                    if(bunkersArray[k][2].bitmaparray[l]==1)
+                    {
+                              var PlayerbulletXpos = Player.bulletsArray[i].X;
+                              var PlayerbulletYpos = Player.bulletsArray[i].Y;
+                              var Playerbulletwidth = Player.bulletsArray[i].width;
+                              var Playerbulletheight = Player.bulletsArray[i].height;
+                              var AliensbulletXpos = AliensbulletsArray[j].X;
+                              var AliensbulletYpos = AliensbulletsArray[j].Y;
+                              var Aliensbulletwidth = AliensbulletsArray[j].width;
+                              var Aliensbulletheight = AliensbulletsArray[j].height;
+                              var bunkerXpos = bunkersArray[k][2].ObjectbodyArray[l].X;
+                              var bunkerYpos = bunkersArray[k][2].ObjectbodyArray[l].Y;
+                              var bunkersize = bunkersArray[k][2].boxsize;
+                            if(bunkerXpos<PlayerbulletXpos+Playerbulletwidth)
+                           {
+                                 if(PlayerbulletXpos<bunkerXpos+bunkersize)
+                                {
+                                   if(bunkerYpos<PlayerbulletYpos+Playerbulletheight)
+                                  {
+                                      if(PlayerbulletYpos<bunkerYpos+bunkersize)
+                                     {
+                                              
+                                             bunkersArray[k][0].health-=10; Player.bulletsArray[i].X=Player.ObjectbodyArray[Player.columns/2].X;
+                                              Player.bulletsArray[i].Y=Player.ObjectbodyArray[Player.columns/2].Y;
+                                              Player.bulletsArray[i].Active=0;
+                                              break;
+                                         
+                                     }
+                                 }
+                              }
+                          }
+                           if(bunkerXpos<AliensbulletXpos+Aliensbulletwidth)
+                           {
+                                 if(AliensbulletXpos<bunkerXpos+bunkersize)
+                                {
+                                   if(bunkerYpos<AliensbulletYpos+Aliensbulletheight)
+                                  {
+                                      if(AliensbulletYpos<bunkerYpos+bunkersize)
+                                     {
+                                          bunkersArray[k][0].health-=10;
+                                           RandomAliens = Math.floor((Math.random()*lostAlien)+firstAlien);
+                                          AliensbulletsArray[j].X = Aliens_Array[RandomAliens].ObjectbodyArray[Aliens_Array[RandomAliens].rows/2].X;
+                                         AliensbulletsArray[j].Y = Aliens_Array[RandomAliens].ObjectbodyArray[Aliens_Array[RandomAliens].rows/2].Y;
+                                         AliensbulletsArray[j].Active=0;
+                                         break;
+                                     }
+                                 }
+                              }
+                          }
+                        
+                    }
+                }
+            }
+        }
+    }
+}
+function bulletconllisontobunkerprats_4()
+{
+    for(var i=0; i<Player.bulletsArray.length; i++)
+    {
+        for(var j=0; j<AliensbulletsArray.length; j++)
+        {
+            for(var k=0; k<bunkersArray.length; k++)
+            {
+                for(var l=0; l<bunkersArray[0][0].bitmaparray.length; l++)
+                {
+                    if(bunkersArray[k][3].bitmaparray[l]==1)
+                    {
+                              var PlayerbulletXpos = Player.bulletsArray[i].X;
+                              var PlayerbulletYpos = Player.bulletsArray[i].Y;
+                              var Playerbulletwidth = Player.bulletsArray[i].width;
+                              var Playerbulletheight = Player.bulletsArray[i].height;
+                              var AliensbulletXpos = AliensbulletsArray[j].X;
+                              var AliensbulletYpos = AliensbulletsArray[j].Y;
+                              var Aliensbulletwidth = AliensbulletsArray[j].width;
+                              var Aliensbulletheight = AliensbulletsArray[j].height;
+                              var bunkerXpos = bunkersArray[k][3].ObjectbodyArray[l].X;
+                              var bunkerYpos = bunkersArray[k][3].ObjectbodyArray[l].Y;
+                              var bunkersize = bunkersArray[k][3].boxsize;
+                            if(bunkerXpos<PlayerbulletXpos+Playerbulletwidth)
+                           {
+                                 if(PlayerbulletXpos<bunkerXpos+bunkersize)
+                                {
+                                   if(bunkerYpos<PlayerbulletYpos+Playerbulletheight)
+                                  {
+                                      if(PlayerbulletYpos<bunkerYpos+bunkersize)
+                                     {
+                                              bunkersArray[k][0].health-=10;
+                                              Player.bulletsArray[i].X=Player.ObjectbodyArray[Player.columns/2].X;
+                                              Player.bulletsArray[i].Y=Player.ObjectbodyArray[Player.columns/2].Y;
+                                              Player.bulletsArray[i].Active=0;
+                                              break;
+                                         
+                                     }
+                                 }
+                              }
+                          }
+                           if(bunkerXpos<AliensbulletXpos+Aliensbulletwidth)
+                           {
+                                 if(AliensbulletXpos<bunkerXpos+bunkersize)
+                                {
+                                   if(bunkerYpos<AliensbulletYpos+Aliensbulletheight)
+                                  {
+                                      if(AliensbulletYpos<bunkerYpos+bunkersize)
+                                     {
+                                          bunkersArray[k][0].health-=10;
+                                           RandomAliens = Math.floor((Math.random()*lostAlien)+firstAlien);
+                                          AliensbulletsArray[j].X = Aliens_Array[RandomAliens].ObjectbodyArray[Aliens_Array[RandomAliens].rows/2].X;
+                                         AliensbulletsArray[j].Y = Aliens_Array[RandomAliens].ObjectbodyArray[Aliens_Array[RandomAliens].rows/2].Y;
+                                         AliensbulletsArray[j].Active=0;
+                                         break;
+                                     }
+                                 }
+                              }
+                          }
+                        
+                    }
+                }
+            }
+        }
+    }
+}
+function bulletconllisontobunkerprats_5()
+{
+    for(var i=0; i<Player.bulletsArray.length; i++)
+    {
+        for(var j=0; j<AliensbulletsArray.length; j++)
+        {
+            for(var k=0; k<bunkersArray.length; k++)
+            {
+                for(var l=0; l<bunkersArray[0][0].bitmaparray.length; l++)
+                {
+                    if(bunkersArray[k][4].bitmaparray[l]==1)
+                    {
+                              var PlayerbulletXpos = Player.bulletsArray[i].X;
+                              var PlayerbulletYpos = Player.bulletsArray[i].Y;
+                              var Playerbulletwidth = Player.bulletsArray[i].width;
+                              var Playerbulletheight = Player.bulletsArray[i].height;
+                              var AliensbulletXpos = AliensbulletsArray[j].X;
+                              var AliensbulletYpos = AliensbulletsArray[j].Y;
+                              var Aliensbulletwidth = AliensbulletsArray[j].width;
+                              var Aliensbulletheight = AliensbulletsArray[j].height;
+                              var bunkerXpos = bunkersArray[k][4].ObjectbodyArray[l].X;
+                              var bunkerYpos = bunkersArray[k][4].ObjectbodyArray[l].Y;
+                              var bunkersize = bunkersArray[k][4].boxsize;
+                            if(bunkerXpos<PlayerbulletXpos+Playerbulletwidth)
+                           {
+                                 if(PlayerbulletXpos<bunkerXpos+bunkersize)
+                                {
+                                   if(bunkerYpos<PlayerbulletYpos+Playerbulletheight)
+                                  {
+                                      if(PlayerbulletYpos<bunkerYpos+bunkersize)
+                                     {
+                                              
+                                             bunkersArray[k][0].health-=10; Player.bulletsArray[i].X=Player.ObjectbodyArray[Player.columns/2].X;
+                                              Player.bulletsArray[i].Y=Player.ObjectbodyArray[Player.columns/2].Y;
+                                              Player.bulletsArray[i].Active=0;
+                                              break;
+                                         
+                                     }
+                                 }
+                              }
+                          }
+                           if(bunkerXpos<AliensbulletXpos+Aliensbulletwidth)
+                           {
+                                 if(AliensbulletXpos<bunkerXpos+bunkersize)
+                                {
+                                   if(bunkerYpos<AliensbulletYpos+Aliensbulletheight)
+                                  {
+                                      if(AliensbulletYpos<bunkerYpos+bunkersize)
+                                     {
+                                          bunkersArray[k][0].health-=10;
+                                           RandomAliens = Math.floor((Math.random()*lostAlien)+firstAlien);
+                                          AliensbulletsArray[j].X = Aliens_Array[RandomAliens].ObjectbodyArray[Aliens_Array[RandomAliens].rows/2].X;
+                                         AliensbulletsArray[j].Y = Aliens_Array[RandomAliens].ObjectbodyArray[Aliens_Array[RandomAliens].rows/2].Y;
+                                         AliensbulletsArray[j].Active=0;
+                                         break;
+                                     }
+                                 }
+                              }
+                          }
+                        
+                    }
+                }
+            }
+        }
+    }
+}
+function bulletconllisontobunkerprats_6()
+{
+    for(var i=0; i<Player.bulletsArray.length; i++)
+    {
+        for(var j=0; j<AliensbulletsArray.length; j++)
+        {
+            for(var k=0; k<bunkersArray.length; k++)
+            {
+                for(var l=0; l<bunkersArray[0][0].bitmaparray.length; l++)
+                {
+                    if(bunkersArray[k][5].bitmaparray[l]==1)
+                    {
+                              var PlayerbulletXpos = Player.bulletsArray[i].X;
+                              var PlayerbulletYpos = Player.bulletsArray[i].Y;
+                              var Playerbulletwidth = Player.bulletsArray[i].width;
+                              var Playerbulletheight = Player.bulletsArray[i].height;
+                              var AliensbulletXpos = AliensbulletsArray[j].X;
+                              var AliensbulletYpos = AliensbulletsArray[j].Y;
+                              var Aliensbulletwidth = AliensbulletsArray[j].width;
+                              var Aliensbulletheight = AliensbulletsArray[j].height;
+                              var bunkerXpos = bunkersArray[k][5].ObjectbodyArray[l].X;
+                              var bunkerYpos = bunkersArray[k][5].ObjectbodyArray[l].Y;
+                              var bunkersize = bunkersArray[k][5].boxsize;
+                            if(bunkerXpos<PlayerbulletXpos+Playerbulletwidth)
+                           {
+                                 if(PlayerbulletXpos<bunkerXpos+bunkersize)
+                                {
+                                   if(bunkerYpos<PlayerbulletYpos+Playerbulletheight)
+                                  {
+                                      if(PlayerbulletYpos<bunkerYpos+bunkersize)
+                                     {
+                                              
+                                             bunkersArray[k][0].health-=10; Player.bulletsArray[i].X=Player.ObjectbodyArray[Player.columns/2].X;
+                                              Player.bulletsArray[i].Y=Player.ObjectbodyArray[Player.columns/2].Y;
+                                              Player.bulletsArray[i].Active=0;
+                                              break;
+                                         
+                                     }
+                                 }
+                              }
+                          }
+                           if(bunkerXpos<AliensbulletXpos+Aliensbulletwidth)
+                           {
+                                 if(AliensbulletXpos<bunkerXpos+bunkersize)
+                                {
+                                   if(bunkerYpos<AliensbulletYpos+Aliensbulletheight)
+                                  {
+                                      if(AliensbulletYpos<bunkerYpos+bunkersize)
+                                     {
+                                          bunkersArray[k][0].health-=10;
+                                           RandomAliens = Math.floor((Math.random()*lostAlien)+firstAlien);
+                                          AliensbulletsArray[j].X = Aliens_Array[RandomAliens].ObjectbodyArray[Aliens_Array[RandomAliens].rows/2].X;
+                                         AliensbulletsArray[j].Y = Aliens_Array[RandomAliens].ObjectbodyArray[Aliens_Array[RandomAliens].rows/2].Y;
+                                         AliensbulletsArray[j].Active=0;
+                                         break;
+                                     }
+                                 }
+                              }
+                          }
+                        
+                    }
+                }
+            }
+        }
+    }
+}
+function bunkersDamage()
+{
+    bulletconllisontobunkerprats_1();
+    bulletconllisontobunkerprats_2()
+    bulletconllisontobunkerprats_3()
+    bulletconllisontobunkerprats_4();
+    bulletconllisontobunkerprats_5();
+    bulletconllisontobunkerprats_6();
+}
+function bunkershealth()
+{
+    for(var i=0; i<bunkersArray.length; i++)
+    {
+        for(var j=0; j<bunker_1.length; j++)
+        {
+            if(bunkersArray[i][0].health==90)
+            {
+                bunkersArray[i][0].bitmaparray = bunker_leftpartDamage_bitmaparray;
+            }
+            else if(bunkersArray[i][0].health==80)
+            {
+                bunkersArray[i][1].bitmaparray = bunker_normalpart_Damage_bitmaparray
+            }
+            else if(bunkersArray[i][0].health==70)
+            {
+                bunkersArray[i][2].bitmaparray = bunker_rightpartDamage_bitmaparray; 
+            }
+            else if(bunkersArray[i][0].health==60)
+            {
+                bunkersArray[i][3].bitmaparray = bunker_normalpart_Damage_bitmaparray;
+            }
+            else if(bunkersArray[i][0].health==50)
+            {
+                   bunkersArray[i][4].bitmaparray = bunker_midpartDamage_bitmaparray;
+            }
+            else if(bunkersArray[i][0].health==40)
+            {
+                bunkersArray[i][5].bitmaparray = bunker_normalpart_Damage_bitmaparray;
+                bunkersArray[i][0].health-=20;
+            }
+            else if(bunkersArray[i][0].health==0)
+            {
+                 bunkersArray[i][0].bitmaparray = bunker_Destroy_bitmapparray;
+                 bunkersArray[i][1].bitmaparray = bunker_Destroy_bitmapparray;
+                 bunkersArray[i][2].bitmaparray = bunker_Destroy_bitmapparray;
+                 bunkersArray[i][3].bitmaparray = bunker_Destroy_bitmapparray;
+                 bunkersArray[i][4].bitmaparray = bunker_Destroy_bitmapparray;
+                 bunkersArray[i][5].bitmaparray = bunker_Destroy_bitmapparray;
+            }
+        }
+    }
+}
+function PlayerbulletcollisiontoAlien_1()
+{
+    for(var i=0; i<Player.bulletsArray.length; i++)
+    { 
+        if(Player.bulletsArray[i].Active==1)
+        {
+             for(var j=0; j<(Aliens_Array.length-20); j++)
+        {
+            for(var k=0; k<Aliens_Array[0].ObjectbodyArray.length; k++)
+            {
+                if(Aliens_Array[j].bitmaparray[0][k]==1 || Aliens_Array[j].bitmaparray[1][k]==1)
+                {
+                    if(Aliens_Array[j].Alive==1)
+                    {
+                             var Alien_1_Xpos = Aliens_Array[j].ObjectbodyArray[k].X;
+                             var Alien_1_Ypos = Aliens_Array[j].ObjectbodyArray[k].Y;
+                             var Alien_1_Size = Aliens_Array[j].boxsize;
+                             var PlayerbulletXpos = Player.bulletsArray[i].X;
+                             var PlayerbulletYpos = Player.bulletsArray[i].Y;
+                             var Playerbulletwidth = Player.bulletsArray[i].width;
+                             var Playerbulletheight = Player.bulletsArray[i].height;
+                    if(Alien_1_Xpos<PlayerbulletXpos+Playerbulletwidth)
+                    {
+                        if(PlayerbulletXpos<Alien_1_Xpos+Alien_1_Size)
+                        {
+                            if(Alien_1_Ypos<PlayerbulletYpos+Playerbulletheight)
+                            {
+                                if(PlayerbulletYpos<Alien_1_Ypos+Alien_1_Size)
+                                {
+                                    Score+=30;
+                                    Aliens_Array[j].Explosion=1;
+                                    Player.bulletsArray[i].X = Player.ObjectbodyArray[Player.columns/2].X;
+                                     Player.bulletsArray[i].Y = Player.ObjectbodyArray[Player.columns/2].Y;
+                                    Player.bulletsArray[i].Active=0;
+                                    break;  
+                                    
+                                }
+                            }
+                        }
+                    }
+                    }
+                    
+                     
+                }
+            }
+        }
+    }
+        
+}
+    
+}
+function PlayerbulletcollisiontoAlien_2()
+{
+    for(var i=0; i<Player.bulletsArray.length; i++)
+    {
+        if(Player.bulletsArray[i].Active==1)
+        {
+              for(var j=10; j<(Aliens_Array.length-10); j++)
+        {
+            for(var k=0; k<Aliens_Array[10].ObjectbodyArray.length; k++)
+            {
+                if(Aliens_Array[j].bitmaparray[0][k]==1 || Aliens_Array[j].bitmaparray[1][k]==1)
+                {
+                    if(Aliens_Array[j].Alive==1)
+                    {
+                          var Alien_2_Xpos = Aliens_Array[j].ObjectbodyArray[k].X;
+                          var Alien_2_Ypos = Aliens_Array[j].ObjectbodyArray[k].Y;
+                          var Alien_2_Size = Aliens_Array[j].boxsize;
+                          var PlayerbulletXpos = Player.bulletsArray[i].X;
+                          var PlayerbulletYpos = Player.bulletsArray[i].Y;
+                          var Playerbulletwidth = Player.bulletsArray[i].width;
+                          var Playerbulletheight = Player.bulletsArray[i].height;
+                    if(Alien_2_Xpos<PlayerbulletXpos+Playerbulletwidth)
+                    {
+                        if(PlayerbulletXpos<Alien_2_Xpos+Alien_2_Size)
+                        {
+                            if(Alien_2_Ypos<PlayerbulletYpos+Playerbulletheight)
+                            {
+                                if(PlayerbulletYpos<Alien_2_Ypos+Alien_2_Size)
+                                {
+                                     Score+=20;
+                                     Aliens_Array[j].Explosion=1;
+                                     Player.bulletsArray[i].X = Player.ObjectbodyArray[Player.columns/2].X;
+                                     Player.bulletsArray[i].Y = Player.ObjectbodyArray[Player.columns/2].Y;
+                                     Player.bulletsArray[i].Active=0;
+                                    break;   
+                                      
+                                }
+                            }
+                        }
+                    }
+                    
+                 }
+                    
+                     
+                }
+            }
+        }
+        }
+        
+    }
+}
+function PlayerbulletcollisiontoAlien_3()
+{
+    for(var i=0; i<Player.bulletsArray.length; i++)
+    {
+        if(Player.bulletsArray[i].Active==1)
+        {
+         for(var j=20; j<Aliens_Array.length; j++)
+        {
+            for(var k=0; k<Aliens_Array[20].ObjectbodyArray.length; k++)
+            {
+                if(Aliens_Array[j].bitmaparray[0][k]==1 || Aliens_Array[j].bitmaparray[1][k]==1)
+                {
+                  if(Aliens_Array[j].Alive==1)
+                 {
+                           var Alien_3_Xpos = Aliens_Array[j].ObjectbodyArray[k].X;
+                          var Alien_3_Ypos = Aliens_Array[j].ObjectbodyArray[k].Y;
+                          var Alien_3_Size = Aliens_Array[j].boxsize;
+                          var PlayerbulletXpos = Player.bulletsArray[i].X;
+                          var PlayerbulletYpos = Player.bulletsArray[i].Y;
+                          var Playerbulletwidth = Player.bulletsArray[i].width;
+                          var Playerbulletheight = Player.bulletsArray[i].height;
+                    if(Alien_3_Xpos<PlayerbulletXpos+Playerbulletwidth)
+                    {
+                        if(PlayerbulletXpos<Alien_3_Xpos+Alien_3_Size)
+                        {
+                            if(Alien_3_Ypos<PlayerbulletYpos+Playerbulletheight)
+                            {
+                                if(PlayerbulletYpos<Alien_3_Ypos+Alien_3_Size)
+                                {
+                                    Score+=10;
+                                    Aliens_Array[j].Explosion=1;
+                                    Player.bulletsArray[i].X = Player.ObjectbodyArray[Player.columns/2].X;
+                                     Player.bulletsArray[i].Y = Player.ObjectbodyArray[Player.columns/2].Y;
+                                    Player.bulletsArray[i].Active=0;
+                                    break;  
+                                }
+                            }
+                        }
+                    }
+                 }
+                    
+                     
+                }
+            }
+        }
+        }
+        
+    }
+}
+function PlayerbulletcollisionAliens()
+{
+    PlayerbulletcollisiontoAlien_1();
+    PlayerbulletcollisiontoAlien_2();
+    PlayerbulletcollisiontoAlien_3();
+}
+function AliensbulletcollisiontoPlayer()
+{
+    for(var i=0; i<AliensbulletsArray.length; i++)
+    {
+        for(var j=0; j<Player.ObjectbodyArray.length; j++)
+        {
+          if(Player.bitmaparray[0][j]==1 || Player.bitmaparray[1][j]==1)
+          {
+             var AliensbulletXpos = AliensbulletsArray[i].X;
+             var AliensbulletYpos = AliensbulletsArray[i].Y;
+             var Aliensbulletwidth = AliensbulletsArray[i].width;
+             var Aliensbulletheight = AliensbulletsArray[i].height;
+             var PlayerXpos = Player.ObjectbodyArray[j].X;
+             var PlayerYpos = Player.ObjectbodyArray[j].Y;
+             var PlayerSize =  Player.boxsize;
+             if(PlayerXpos<AliensbulletXpos+Aliensbulletwidth)
+             {
+                 if(AliensbulletXpos<PlayerXpos+PlayerSize)
+                 {
+                     if(PlayerYpos<AliensbulletYpos+ Aliensbulletheight)
+                     {
+                         if(AliensbulletYpos<PlayerYpos+PlayerSize)
+                         {
+                             Player.Explosion=1;
+                             Playerlifecounter++;
+                             Player.Active=0;
+                              RandomAliens = Math.floor((Math.random()*lostAlien)+firstAlien);
+                              AliensbulletsArray[i].X = Aliens_Array[RandomAliens].ObjectbodyArray[Aliens_Array[RandomAliens].rows/2].X;
+                              AliensbulletsArray[i].Y = Aliens_Array[RandomAliens].ObjectbodyArray[Aliens_Array[RandomAliens].rows/2].Y;
+                              AliensbulletsArray[i].Active=0;
+                              break;
+                         }
+                     }
+                 }
+             }
+          }
+        }
+    }
+}
+function GameStart()
+{
+    Gamemanu.setAcive=false;
+    GamemanualienShip.setAcive=false;
+    GamemanuAlien_1.setAcive=false;
+    GamemanuAlien_2.setAcive=false;
+    GamemanuAlien_3.setAcive=false;
+    AssignhitalienShippoints.setAcive=false;
+    AssignhitAlien_1Points.setAcive=false;
+    AssignhitAlien_2Points.setAcive=false;
+    AssignhitAlien_3Points.setAcive=false;
+    GameTitle.setAcive=false;
+    Gamestartbutton.setAcive=false;
+    Player.Alive=1;
+    alienShip.Alive=1;
+    for(var i=0; i<Aliens_Array.length; i++)
+    {
+        Aliens_Array[i].Alive=1;
+    }
+    for(var j=0; j<bunkersArray.length; j++)
+    {
+        for(var k=0; k<bunker_1.length; k++)
+        {
+            bunkersArray[j][k].Alive=1;
+        }
+    }
+    Playerlife_1.setAcive=true;
+    Playerlife_2.setAcive=true;
+    Playerlife_3.setAcive=true;
+}
+function Scoremanager(l_ctx)
+{
+    l_ctx.font = "20px Georgia";
+    l_ctx.fillStyle = "white";
+    l_ctx.fillText("Score"+" "+Score,20,20);
+}
+function Playerlifemanager()
+{
+    if(Playerlifecounter>=1) 
+    {
+        Playerlife_1.setAcive=false;
+    }
+    if(Playerlifecounter>=2) 
+    {
+        Playerlife_2.setAcive=false;
+    }
+    if(Playerlifecounter>=3) 
+    {
+         Playerlife_3.setAcive=false;
+         Playerlifecounter=0;
+         GameOver();
+    }
+} 
+function GameOver()
+{
+    GamescoreText.setAcive=true;
+    GameOvermanu.setAcive=true;
+    Gamerestartbutton.setAcive=true;
+    Gamestartbuttonclick=false;
+    Gamerestartbuttonclick=true;
+    GameOverText.setAcive=true;
+    alienShip.Alive=0;
+    Player.Alive=0;
+    for(var i=0; i<Aliens_Array.length; i++)
+    {
+        Aliens_Array[i].Alive=0;
+        Aliens_Array[i].Explosion=0;
+    }
+    for(var i=0; i<bunkersArray.length; i++)
+    {
+        for(var j=0; j<bunker_1.length; j++)
+        {
+            bunkersArray[i][j].Alive=0;
+        }
+    }
+    for(var i=0; i<Aliens_Array.length; i++)
+    {
+        Aliens_Array[i].Alienresetpos=0;
+    } 
+    scoremanager();
+}
+function Gamerestart()
+{
+    GamescoreText.setAcive=false;
+    GameOvermanu.setAcive=false;
+    Gamerestartbutton.setAcive=false;
+    Gamerestartbuttonclick=false;
+    GameOverText.setAcive=false;
+    GamecompleteText.setAcive=false;
+    Playerlife_1.setAcive=true;
+    Playerlife_2.setAcive=true;
+    Playerlife_3.setAcive=true;
+    Score=0;
+    Player.Alive=1;
+    Player.Explosion=0;
+    Player.Active=1;
+    alienShip.Alive=1; 
+    Aliensreset = true;
+    Playerlifecounter=0;
+    for(var i=0; i<Player.bulletsArray.length; i++)
+    {
+        Player.bulletsArray[i].Active=0;
+    }
+    for(var i=0; i<bunkersArray.length; i++)
+    {
+        for(var j=0; j<bunker_1.length; j++)
+        {
+            bunkersArray[i][0].health=100;
+            bunkersArray[i][0].bitmaparray = bunker_leftpart_bitmaparray;
+            bunkersArray[i][1].bitmaparray = bunker_normalpart_bitmaparray;
+            bunkersArray[i][2].bitmaparray = bunker_rightpart_bitmaparray;
+            bunkersArray[i][3].bitmaparray = bunker_normalpart_bitmaparray;
+            bunkersArray[i][4].bitmaparray = bunker_midpart_bitmaparray;
+            bunkersArray[i][5].bitmaparray = bunker_normalpart_bitmaparray;
+            bunkersArray[i][j].Alive=1;
+        }
+    }
+    for(var i=0; i<Aliens_Array.length; i++)
+    {
+        Aliens_Array[i].Alive=1;
+        Aliens_Array[i].Explosion=0;
+    } 
+    Aliensresetposition();
+}
+function Gamecomplete()
+{
+        GamecompleteText.setAcive=true;
+        GamescoreText.setAcive=true;
+        Gamerestartbutton.setAcive=true;
+        Gamestartbuttonclick=false;
+        Gamerestartbuttonclick=true;
+        GameOvermanu.setAcive=true;
+        Playerlife_1.setAcive=false;
+        Playerlife_2.setAcive=false;
+        Playerlife_3.setAcive=false;
+        alienShip.Alive=0;
+        Player.Alive=0;
+       scoremanager();
+       for(var i=0; i<Aliens_Array.length; i++)
+       {
+           Aliens_Array[i].Alive=0;
+           Aliens_Array[i].Explosion=0;
+       }
+       for(var i=0; i<Player.bulletsArray.length; i++)
+       {
+           Player.bulletsArray[i].Active=0;
+       }
+       for(var i=0; i<bunkersArray.length; i++)
+      {
+        for(var j=0; j<bunker_1.length; j++)
+        {
+            bunkersArray[i][j].Alive=0;
+        }
+       }
+    
+}
+function Gamemanager()
+{
+    if(Aliens_Array[0].Explosion==1 && Aliens_Array[1].Explosion==1 && Aliens_Array[3].Explosion==1 && Aliens_Array[4].Explosion==1 && Aliens_Array[5].Explosion==1 && Aliens_Array[6].Explosion==1 && Aliens_Array[7].Explosion==1 && Aliens_Array[8].Explosion==1 && Aliens_Array[8].Explosion==1 && Aliens_Array[9].Explosion==1 && Aliens_Array[10].Explosion==1 && Aliens_Array[11].Explosion==1 && Aliens_Array[12].Explosion==1 && Aliens_Array[13].Explosion==1 && Aliens_Array[13].Explosion==1 && Aliens_Array[14].Explosion==1 && Aliens_Array[15].Explosion==1 && Aliens_Array[16].Explosion==1 && Aliens_Array[17].Explosion==1 && Aliens_Array[18].Explosion==1 && Aliens_Array[19].Explosion==1 && Aliens_Array[20].Explosion==1 && Aliens_Array[21].Explosion==1 && Aliens_Array[22].Explosion==1 && Aliens_Array[23].Explosion==1 && Aliens_Array[24].Explosion==1 && Aliens_Array[25].Explosion==1 &&
+    Aliens_Array[26].Explosion==1 && Aliens_Array[27].Explosion==1 && Aliens_Array[28].Explosion==1 &&
+    Aliens_Array[29].Explosion==1)
+    {
+        Gamecomplete();
+    }
+}
+
+function scoremanager()
+{
+       
+    GamescoreText.Text = "score"+" "+Score;
+}
+function Aliensresetposition()
+{
+    for(var i=0; i<Aliens_Array.length; i++)
+    {
+       
+        Aliens_Array[i].m_resetpos();
+        
+    }
+}
+
+function Gameloop()
+{
+    alienShip.m_move();
+    Alienshipreset();
+    AlienShipExplosion();
+    Aliensmovepath();
+    Gamemanager();
+    PlayerbulletcollisionAliens();
+    AnimateAliens();
+    bunkershealth();
+    Aliensbulletmove();
+    finalmoveAliens();
+    intialmoveAliens();
+    Aliensbulletmove();
+    playerboundarycollision();
+    Playerbullentsboundarycollision();
+    AliensbulletcollisiontoPlayer();
+    Aliensbulletcollisiontoboundary();
+    Playerlifemanager();
+    bunkersDamage();
+    Aliensshootingbullets();
+    Player.m_shootingbullets();
+    Player.m_move();
+    g_ctx.clearRect(0,0,g_canvas.width,g_canvas.height);
+    g_ctx.fillStyle="black";
+    g_ctx.fillRect(0,0,g_canvas.width,g_canvas.height);
+    Scoremanager(g_ctx);
+    GameOvermanu.m_drawPanel(g_ctx);
+    GameOverText.m_drawText(g_ctx);
+    GamecompleteText.m_drawText(g_ctx);
+    Gamerestartbutton.m_drawbutton(g_ctx);
+    GamescoreText.m_drawText(g_ctx);
+    Playerlife_1.m_draw(g_ctx);
+    Playerlife_2.m_draw(g_ctx);
+    Playerlife_3.m_draw(g_ctx);
+    Gamemanu.m_drawPanel(g_ctx);
+    GamemanualienShip.m_draw(g_ctx);
+    GamemanuAlien_1.m_draw(g_ctx);
+    GamemanuAlien_2.m_draw(g_ctx);
+    GamemanuAlien_3.m_draw(g_ctx);
+    AssignhitalienShippoints.m_drawText(g_ctx);
+    AssignhitAlien_1Points.m_drawText(g_ctx);
+    AssignhitAlien_2Points.m_drawText(g_ctx);
+    AssignhitAlien_3Points.m_drawText(g_ctx);
+    GameTitle.m_drawText(g_ctx);
+    Gamestartbutton.m_drawbutton(g_ctx);
+    Player.m_drawbullets(g_ctx);
+    alienShip.m_draw(g_ctx);
+    drawAlienbullets(g_ctx);
+    Player.m_draw(g_ctx);
+    drawbunker(g_ctx);
+    drawAlines(g_ctx);
+}
+setInterval(Gameloop,intervaltime);
+document.addEventListener("keydown",l_keyDownhandler);
+document.addEventListener("keyup",l_keyuphandler);
+document.addEventListener("mousedown",l_mousedownhandler);
+</script>
+</html>

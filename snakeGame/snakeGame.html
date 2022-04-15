@@ -1,0 +1,422 @@
+<html>
+<canvas id = "Mycanvas" height="600" width="800"></canvas>
+<script>
+var g_canvas = document.getElementById("Mycanvas");
+var g_ctx = g_canvas.getContext("2d");
+var framerate = 30;
+var intervaltime = 1000/framerate;
+var lowerpos = 0;
+var higherpos = 0;
+var Randomposition = Math.floor((Math.random()*higherpos)+lowerpos);
+var Startbutton = new Image();
+var snakeGamemenu = new Image();
+var Gamerestartimage = new Image();
+Gamerestartimage.src = "restartbotton.png";
+snakeGamemenu.src = "snakepannel.jpg";
+Startbutton.src = "Startbotton.png";
+var score = 0;
+var Xpos;
+var Ypos;
+var SnakebodypicesXpos = 0;
+var SnakebodypicesYpos = 0;
+var distance = 0;
+var SnakeheadXpos = 0;
+var SnakeheadYpos = 0;
+var Startmenu = true;
+var Gamerestartbuttondown = false;
+var SnakeresetXpos = 0;
+var SnakeresetYpos = 0;
+var Highscore=0;
+var highscore;
+class C_square
+{
+    constructor(l_X,l_Y,l_size,l_color)
+    {
+        this.X=l_X;
+        this.Y=l_Y;
+        this.Size = l_size;
+        this.color = l_color;
+    }
+    m_drawsquare(l_ctx)
+    {
+        l_ctx.fillStyle=this.color;
+        l_ctx.fillRect(this.X,this.Y,this.Size,this.Size);
+        l_ctx.strokeStyle="#009dff";
+        l_ctx.lineWidth=2;
+        l_ctx.strokeRect(this.X,this.Y,this.Size,this.Size)
+    }
+}
+class C_snake
+{
+    constructor(l_X,l_Y,l_size)
+    {
+        this.X = l_X;
+        this.Y = l_Y;
+        this.size = l_size;
+        this.SnakebodyArray = new Array(this.size);
+        this.Snakewidth = 20;
+        this.movespeed =0;
+        this.movedirection =0;
+        this.snakecurrentsize =10;
+        this.Xpos = this.X;
+        this.Ypos = this.Y;
+        this.XposArray = new Array(this.size*this.Snakewidth);
+        this.YposArray = new Array(this.size*this.Snakewidth);
+        for(var i=0; i<this.SnakebodyArray.length; i++)
+        {
+            this.SnakebodyArray[i] = new C_square(this.X,this.Y,this.Snakewidth,"white");
+            this.X +=this.Snakewidth;
+        }
+        for(var i=0; i<this.XposArray.length; i++)
+        {
+            this.XposArray[i] =this.Xpos;
+            this.Xpos++;
+            this.YposArray[i] = this.Ypos;
+        }
+       
+    }
+    m_drawsnake(l_ctx)
+    {
+       for(var i=0; i<this.snakecurrentsize; i++)
+       {
+           this.SnakebodyArray[i].m_drawsquare(l_ctx);
+       }   
+    }
+    m_movesnake()
+    {
+        
+        if(this.movedirection!=0)
+        {
+            
+            // update  X & Y Pos Array
+            for(var j=1; j<=this.movespeed; j++)
+            {
+                    for(var i=(this.XposArray.length-1); i>=1; i--)
+                    {
+                      this.XposArray[i] =  this.XposArray[i-1];
+                      this.YposArray[i] = this.YposArray[i-1];
+                    }
+                    
+
+
+                       if(this.movedirection==1)
+                       {
+                         this.XposArray[0]++;
+                       }
+                       if(this.movedirection==2)
+                       {
+                          this.XposArray[0]--;
+                       }
+                      if(this.movedirection==3)
+                      { 
+                        this.YposArray[0]--;
+
+                      }
+                      if(this.movedirection==4)
+                      {
+                          this.YposArray[0]++;
+                      }
+            
+            }
+            
+            //assign back to snake
+            
+            this.SnakebodyArray[0].X =  this.XposArray[0];
+            this.SnakebodyArray[0].Y =  this.YposArray[0];
+            
+            for(var i=1; i<this.SnakebodyArray.length; i++)
+            {
+              this.SnakebodyArray[i].X =  this.XposArray[(i*this.Snakewidth)-1];
+              this.SnakebodyArray[i].Y =  this.YposArray[(i*this.Snakewidth)-1];
+            }
+            
+        } 
+        
+     }
+         
+       
+}
+class C_Snakefood
+{
+    constructor(l_X,l_Y,l_radius,l_color)
+    {
+        this.X = l_X;
+        this.Y = l_Y;
+        this.redius = l_radius;
+        this.color = l_color;
+    }
+    m_drawfood(l_ctx)
+    {
+        l_ctx.beginPath();
+        l_ctx.arc(this.X,this.Y,this.redius,0,2*Math.PI);
+        l_ctx.closePath();
+        l_ctx.fillStyle = this.color;
+        l_ctx.fill();
+    }
+}
+class C_Text
+{
+    constructor(l_X,l_Y,l_Text,l_color,l_boolenfactor)
+    {
+        this.X = l_X;
+        this.Y = l_Y;
+        this.Text = l_Text;
+        this.color = l_color;
+        this.setActive = l_boolenfactor;
+    }
+    m_drawText(l_ctx)
+    {
+        if(this.setActive==true)
+        {
+            l_ctx.font = "50px Georgia";
+            l_ctx.fillStyle = this.color;
+            l_ctx.fillText(this.Text,this.X,this.Y);
+        }
+        
+    }
+}
+
+class C_image
+{
+    constructor(l_X,l_Y,l_image,l_width,l_height,l_boolenfactor)
+    {
+        this.X = l_X;
+        this.Y = l_Y;
+        this.image = l_image;
+        this.width = l_width;
+        this.height = l_height;
+        this.setActive = l_boolenfactor;
+    }
+    m_drawimage(l_ctx)
+    {
+       if(this.setActive==true)
+       {
+           l_ctx.drawImage(this.image,this.X,this.Y,this.width,this.height);
+       }
+    }
+}
+var Snake;
+var snakefood;
+var menupanel;
+var GameTitle;
+var startbottonimage;
+var GamestartText;
+var Gameoverpanel;
+var GameoverText;
+var Gamerestartbotton;
+ Snake = new C_snake(200,200,500);
+ snakefood = new C_Snakefood(400,100,5,"#f19aa6");
+ menupanel = new C_image(100,50,snakeGamemenu,600,500,true);
+ GameTitle = new C_Text(250,200,"Snake"+" "+"Game","black",true);
+ startbuttonimage = new C_image(330,350,Startbutton,100,50,true);
+ GamestartText = new C_Text(180,300,"press"+" "+"Start"+" "+"to"+" "+"play","black",true);
+ Gameoverpanel = new C_image(100,50,snakeGamemenu,600,500,false);
+ GameoverText = new C_Text(250,200,"Game"+" "+"Over","black",false);
+ GamescoreText = new C_Text(300,300,"score"+" "+score,"black",false);
+ Gamerestartbutton = new C_image(320,350,Gamerestartimage,100,50,false);    
+function Snakeeatfood()
+{
+     lowerpos = 100;
+     higherpos =400;
+   if((snakefood.X-snakefood.redius)<Snake.SnakebodyArray[0].X+Snake.SnakebodyArray[0].Size)
+   {
+      if((snakefood.X+snakefood.redius)>Snake.SnakebodyArray[0].X)
+      {
+         if((snakefood.Y-snakefood.redius)<Snake.SnakebodyArray[0].Y+Snake.SnakebodyArray[0].Size)
+         {
+             if((snakefood.Y+snakefood.redius)>Snake.SnakebodyArray[0].Y)
+             {
+                 Randomposition = Math.floor((Math.random()*higherpos)+lowerpos);
+                 snakefood.X = Randomposition;
+                 snakefood.Y = Randomposition;
+                 Snake.snakecurrentsize++;
+                 Snake.movespeed++;
+                 score++;
+                 
+             }
+         }
+      }
+   }
+    
+}
+function keydownhandler(l_keydata)
+{
+   if(l_keydata.keyCode==37 && Snake.movedirection!=1)
+   {
+       Snake.movedirection=2;
+   }
+   if(l_keydata.keyCode==38 && Snake.movedirection!=4)
+   {
+       Snake.movedirection=3;
+   }
+   if(l_keydata.keyCode==39 && Snake.movedirection!=2 && Snake.movedirection!=0)
+   {
+       Snake.movedirection=1;
+       
+   }
+    if(l_keydata.keyCode==40 && Snake.movedirection!=3)
+   {
+       
+       Snake.movedirection=4;
+        
+   }
+    
+}
+function mousedownhandler(l_keydata)
+{
+   
+      if(l_keydata.clientX>startbuttonimage.X)
+      {
+        if(l_keydata.clientX<startbuttonimage.X+startbuttonimage.width)
+        {
+            if(l_keydata.clientY>startbuttonimage.Y)
+            {
+                if(l_keydata.clientY<startbuttonimage.Y+startbuttonimage.height)
+                {
+                     if(Startmenu==true)
+                     {
+                         Gamestart();
+                     }
+                }
+            }
+        }
+       }  
+   
+        
+        if(l_keydata.clientX>Gamerestartbutton.X)
+        {
+           if(l_keydata.clientX<Gamerestartbutton.X+Gamerestartbutton.width)
+          {
+               if(l_keydata.clientY>Gamerestartbutton.Y)
+               {
+                   if(l_keydata.clientY<Gamerestartbutton.Y+Gamerestartbutton.height)
+                   {
+                        if(Gamerestartbuttondown==true)
+                        {
+                            Gamerestart();
+                        }
+                   }
+              }
+          }
+      }  
+                        
+    
+    
+   
+    
+}
+function Snakeboundarycollision()
+{
+    
+    if(Snake.SnakebodyArray[0].X+Snake.SnakebodyArray[0].Size>g_canvas.width || Snake.SnakebodyArray[0].X<=0 ||Snake.SnakebodyArray[0].Y+Snake.SnakebodyArray[0].Size>g_canvas.height || Snake.SnakebodyArray[0].Y<=0)
+    {
+        Gameover();
+    }
+}
+function Snakeheadtobodycollision()
+{
+       SnakeheadXpos = Snake.SnakebodyArray[0].X+(Snake.SnakebodyArray[0].Size/2);
+       SnakeheadYpos = Snake.SnakebodyArray[0].Y+(Snake.SnakebodyArray[0].Size/2);
+      for(var i=2; i<Snake.snakecurrentsize; i++)
+      {
+          SnakebodypicesXpos = Snake.SnakebodyArray[i].X+(Snake.SnakebodyArray[i].Size/2);
+          SnakebodypicesYpos = Snake.SnakebodyArray[i].Y+(Snake.SnakebodyArray[i].Size/2);
+          distance = Math.sqrt((SnakeheadXpos-SnakebodypicesXpos)*(SnakeheadXpos-SnakebodypicesXpos)+(SnakeheadYpos-SnakebodypicesYpos)*(SnakeheadYpos-SnakebodypicesYpos));
+          if(distance < Snake.SnakebodyArray[0].Size/2)
+          {
+              Gameover();
+              break;
+          }
+      }
+   
+}
+function Gamerestart()
+{
+    Gameoverpanel.setActive=false;
+    GameoverText.setActive=false;
+    Gamerestartbutton.setActive=false;
+    GamescoreText.setActive=false;
+    Snake.snakecurrentsize=10;
+    Snakefoodcounter=0;
+    score = 0;
+    Xpos = 200;
+    Ypos = Snake.Y;
+    SnakeresetXpos = 200;
+    SnakeresetYpos = 200;
+    Snake.movedirection=0;
+    Snake.movespeed=5;
+  for(var i=0; i<Snake.SnakebodyArray.length; i++)
+  {
+      Snake.SnakebodyArray[i].X = Xpos;
+      Xpos+=Snake.Snakewidth
+      Snake.SnakebodyArray[i].Y = Ypos;  
+  }
+  for(var i=0; i<Snake.XposArray.length; i++)
+  {
+      Snake.XposArray[i]= SnakeresetXpos;
+      SnakeresetXpos++;
+      Snake.YposArray[i] =  SnakeresetYpos;
+  }
+}
+function Gameover()
+{
+      Gameoverpanel.setActive=true;
+      GameoverText.setActive=true;
+      Gamerestartbutton.setActive=true;
+      Snake.movespeed=0;
+      Startmenu = false;
+      Gamerestartbuttondown=true;
+      GamescoreText.setActive=true;
+  
+}
+function Gamestart()
+{
+    startbuttonimage.setActive=false;
+    GameTitle.setActive=false;
+    menupanel.setActive=false;
+    GamestartText.setActive=false;
+    Snake.movespeed=5;
+    Snake.movedirection=0;
+    
+    
+}
+function ScoreText(l_ctx)
+{
+    l_ctx.font = "20px Georgia";
+    l_ctx.fillStyle = "white";
+    l_ctx.fillText("Score"+" "+score,20,30);
+} 
+function scoremanager()
+{
+   
+    GamescoreText.Text = "score"+" "+score;
+}
+
+function Gameloop()
+{
+    Snake.m_movesnake();
+    Snakeeatfood();
+    Snakeboundarycollision();
+    Snakeheadtobodycollision();
+    scoremanager();
+    g_ctx.clearRect(0,0,g_canvas.width,g_canvas.height);
+    g_ctx.fillStyle="black";
+    g_ctx.fillRect(0,0,g_canvas.width,g_canvas.height);
+    snakefood.m_drawfood(g_ctx);
+    Snake.m_drawsnake(g_ctx); 
+    ScoreText(g_ctx);
+    menupanel.m_drawimage(g_ctx);
+    Gameoverpanel.m_drawimage(g_ctx);
+    GamestartText.m_drawText(g_ctx);
+    GameTitle.m_drawText(g_ctx);
+    GameoverText.m_drawText(g_ctx);
+    startbuttonimage.m_drawimage(g_ctx);
+    Gamerestartbutton.m_drawimage(g_ctx);
+    GamescoreText.m_drawText(g_ctx);
+    
+}
+setInterval(Gameloop,intervaltime);
+document.addEventListener("keydown",keydownhandler);
+document.addEventListener("mousedown",mousedownhandler);
+</script>
+</html>

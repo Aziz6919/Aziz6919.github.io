@@ -1,0 +1,440 @@
+<html>
+<canvas id = "mycanvas" height="600"; width="800"></canvas>
+<script> 
+var g_canvas = document.getElementById("mycanvas");
+var g_ctx = g_canvas.getContext("2d");
+var framrate = 30;
+var intervaltime = 1000/framrate;
+var numberofblocks_1 = 0;
+var numberofblocks_2 = 0;
+var Startbuttonclick=true;
+var restartbuttonclick = false;
+var block;
+var gamestart = false;
+var score = 0;
+class C_button
+{
+    constructor(l_X,l_Y,l_width,l_height,l_Text,l_boolenfactor)
+    {
+        this.X = l_X;
+        this.Y = l_Y;
+        this.width = l_width;
+        this.height = l_height;
+        this.Text = l_Text;
+        this.setActive = l_boolenfactor;
+    }
+    m_drawbutton(l_ctx)
+    {
+        if(this.setActive==true)
+        {
+            l_ctx.fillStyle = "white";
+            l_ctx.fillRect(this.X,this.Y,this.width,this.height);
+            l_ctx.fillStyle = "black";
+            l_ctx.font = "20px Georgia";
+            l_ctx.fillText(this.Text,this.X+this.width/14,this.Y+this.height/1.5);
+        }
+        
+    }
+}
+class C_blocks
+{
+    constructor(l_X,l_Y,l_width,l_height,l_color)
+    {
+        this.X = l_X;
+        this.Y = l_Y;
+        this.width = l_width;
+        this.height = l_height;
+        this.color = l_color;
+        this.setActive = true;
+    }
+    m_drawblock(l_ctx)
+    {
+       if(this.setActive==true)
+       {
+           l_ctx.fillStyle = this.color;
+           l_ctx.fillRect(this.X,this.Y,this.width,this.height);
+       }
+       
+    }
+}
+class C_paddel
+{
+    constructor(l_X,l_Y,l_width,l_height,l_color)
+    {
+        this.X = l_X;
+        this.Y = l_Y;
+        this.width = l_width;
+        this.height = l_height;
+        this.color = l_color;
+        this.moveright = 0;
+        this.moveleft = 0;
+        this.movespeed =0;
+    }
+    m_drawpaddel(l_ctx)
+    {
+       l_ctx.fillStyle = this.color;
+       l_ctx.fillRect(this.X,this.Y,this.width,this.height);
+        
+    }
+    m_movepaddle()
+    {
+        if(this.moveright==1)
+        {
+            this.X+=this.movespeed;
+        }
+        if(this.moveleft==1)
+        {
+            this.X-=this.movespeed;
+        }
+
+    }
+}
+class C_ball
+{
+    constructor(l_X,l_Y,l_radius,l_color,l_movespeedX,l_movespeedY)
+    {
+        this.X = l_X;
+        this.Y = l_Y;
+        this.radius = l_radius;
+        this.color = l_color;
+        this.ballmove = false;
+        this.movespeedX = l_movespeedX;
+        this.movespeedY = l_movespeedY;
+    }
+    m_drawball(l_ctx)
+    {
+        l_ctx.beginPath();
+        l_ctx.arc(this.X,this.Y,this.radius,0,2*Math.PI);
+        l_ctx.fillStyle = this.color;
+        l_ctx.closePath();
+        l_ctx.fill();
+        
+    }
+    m_moveball()
+    {
+        if(this.ballmove==true)
+        {
+            this.X+=this.movespeedX;
+            this.Y-=this.movespeedY;
+        }
+    }
+    
+}
+class C_pannel
+{
+    constructor(l_X,l_Y,l_width,l_height,l_color,l_boolen_factor)
+    {
+        this.X = l_X;
+        this.Y = l_Y;
+        this.width = l_width;
+        this.height = l_height;
+        this.color = l_color;
+        this.setActive=l_boolen_factor;
+    }
+    m_drawpannel(l_ctx)
+    {
+        if(this.setActive==true)
+        {
+            l_ctx.fillStyle = this.color;
+            l_ctx.fillRect(this.X,this.Y,this.width,this.height);
+        }
+    }
+}
+class C_Text
+{
+    constructor(l_X,l_Y,l_Text,l_color,l_boolen_facotor)
+    {
+        this.X = l_X;
+        this.Y = l_Y;
+        this.Text = l_Text;
+        this.color = l_color;
+        this.setActive=l_boolen_facotor;
+    }
+    m_drawText(l_ctx)
+    {
+        if(this.setActive==true)
+        {
+            l_ctx.font = "50px Georgia"
+            l_ctx.fillStyle=this.color;
+            l_ctx.fillText(this.Text,this.X,this.Y);
+        }
+    }
+}
+
+var paddel = new C_paddel((g_canvas.width/2)-41,g_canvas.height-30,80,15,"red");
+var ball = new C_ball(g_canvas.width/2,g_canvas.height-38,8,"green",5,5);
+var GameOverpannel = new C_pannel(30,35,720,400,"#c77e7e",false);
+var GameOverText = new C_Text(230,150,"GameOver","black",false);
+var GamecompleteText = new C_Text(230,150,"Gamecomplete","black",false);
+var GameScoreText = new C_Text(250,250,"Score"+" "+" "+score,"black",false);
+var Gamestartpannel = new C_pannel(30,35,720,400,"#c77e7e",true);
+var Gametitle = new C_Text(230,150,"Block"+" "+"bearker","black",true);
+var pressbottonText = new C_Text(220,250,"press"+" "+"Start"+" "+"to"+" "+"play","black",true);
+var GameStartbutton = new C_button(330,300,105,50,"Play"+" "+"Game",true);
+var GamereStartbutton = new C_button(320,300,100,40,"Play"+" "+"Agian",false);
+function ballflowpaddel()
+{
+    if(paddel.moveright==1 || paddel.moveleft==1)
+    {
+        ball.X=paddel.X+paddel.width/2;
+    }
+}
+function stopballflowpaddel()
+{
+    if(gamestart==true)
+    {
+        ballflowpaddel();
+    }
+}
+function keydownhandler(l_keydata)
+{
+    if(l_keydata.keyCode==37)
+    {
+        paddel.moveleft=1;
+    }
+    if(l_keydata.keyCode==39)
+    {
+        paddel.moveright=1;
+    }
+    if(l_keydata.keyCode==32)
+    {
+        ball.ballmove=true;
+        gamestart=false;
+    }
+}
+function keyuphandler(l_keydata)
+{
+    if(l_keydata.keyCode==37)
+    {
+        paddel.moveleft=0;
+    }
+    if(l_keydata.keyCode==39)
+    {
+        paddel.moveright=0;
+    }
+    
+}
+
+function Createblocks(l_clomun,l_row)
+{
+    numberofblocks_1=l_clomun;
+    numberofblocks_2=l_row;
+    block = new Array(numberofblocks_1*numberofblocks_2);
+    var l_X = 50;
+    var l_Y = 50;
+    var l_Xpos = l_X;
+    var l_Ypos = l_Y;
+    var l_width = 60;
+    var l_height = 20;
+    var index = 0;
+    for(var i=0; i<numberofblocks_1; i++)
+    {
+        for(var j=0; j<numberofblocks_2; j++)
+        {
+            block[index] = new C_blocks(l_Xpos,l_Ypos,l_width,l_height,"blue")
+            l_Xpos+=80;
+            index++;
+        }
+        l_Xpos = l_X;
+        l_Ypos+=50;
+    }
+}
+function drawblocks(l_ctx)
+{
+    for(var i=0; i<block.length; i++)
+    {
+        block[i].m_drawblock(l_ctx);
+    }
+}
+function paddelboundarycollision()
+{
+    if(paddel.X+paddel.width>g_canvas.width)
+    {
+        paddel.X = g_canvas.width-paddel.width;
+    }
+    if(paddel.X<=0)
+    {
+        paddel.X = 0;
+    }
+}
+function ballcollision()
+{
+    if((ball.X+ball.radius)>g_canvas.width || (ball.X-ball.radius)<=0)
+    {
+        ball.movespeedX = - ball.movespeedX;
+    }
+    if((ball.Y-ball.radius)<0)
+    {
+        ball.movespeedY=-1*ball.movespeedY;
+    } 
+    if((ball.Y+ball.radius)>g_canvas.height)
+    {
+        GameOver();
+    }
+}
+function ballcollisiontopaddel()
+{
+    if((ball.X+ball.radius)>paddel.X)
+    {
+        if((ball.X-ball.radius)<paddel.X+paddel.width)
+        {
+            if((ball.Y+ball.radius)>paddel.Y)
+            {
+               if((ball.Y-ball.radius)<paddel.Y+paddel.height)
+               {
+                   ball.movespeedY=-1*ball.movespeedY;
+               }
+            }
+        }
+    }
+}
+function ballandblockscollision()
+{
+    for(var i=0; i<block.length; i++)
+    {
+        if(block[i].setActive==true)
+        {
+            if((ball.X+ball.radius)>block[i].X)
+          {
+            if((ball.X-ball.radius)<block[i].X+block[i].width)
+            {
+                if((ball.Y+ball.radius)>block[i].Y)
+                {
+                    if((ball.Y-ball.radius)<block[i].Y+block[i].height)
+                    {
+                        block[i].setActive=false;
+                        score++;
+                        break;
+                    }
+                }
+            }
+          }
+        }
+    } 
+}
+function mousedownhandler(l_keydata)
+{
+    if(l_keydata.clientX>GameStartbutton.X)
+    {
+        if(l_keydata.clientX<GameStartbutton.X+GameStartbutton.width)
+        {
+            if(l_keydata.clientY>GameStartbutton.Y)
+            {
+                if(l_keydata.clientY<GameStartbutton.Y+GameStartbutton.height)
+                {
+                    if(Startbuttonclick==true)
+                    {
+                          Gamestart();
+                    }
+                   
+                }
+            }
+        }
+    }
+    if(l_keydata.clientX>GamereStartbutton.X)
+    {
+        if(l_keydata.clientX<GamereStartbutton.X+GamereStartbutton.width)
+        {
+            if(l_keydata.clientY>GamereStartbutton.Y)
+            {
+                if(l_keydata.clientY<GamereStartbutton.Y+GamereStartbutton.height) 
+                {
+                    if(restartbuttonclick==true)
+                    {
+                         Gamerestart();
+                    }
+                }
+            }
+        }
+    }
+}
+function scoreText(l_ctx)
+{
+    l_ctx.font = "20px Georgia";
+    l_ctx.fillStyle = "white";
+    l_ctx.fillText("Score"+" "+score,10,30);
+}
+function Gamestart()
+{
+    Gamestartpannel.setActive=false;
+    Gametitle.setActive=false;
+    pressbottonText.setActive=false;
+    GameStartbutton.setActive=false;
+    Startbuttonclick=false;
+    restartbuttonclick=true;
+    paddel.movespeed = 10;
+    gamestart = true;
+}
+function GameOver()
+{
+    GameOverpannel.setActive=true;
+    GameOverText.setActive=true;
+    GamereStartbutton.setActive=true;
+    GameScoreText.setActive=true;
+    GameScoreText.Text = "Score"+" "+score;
+}
+function Gamemanager()
+{
+   if(score==block.length)
+   {
+        GameOverpannel.setActive=true;
+        GamereStartbutton.setActive=true;
+        GamecompleteText.setActive=true;
+        paddel.X=(g_canvas.width/2)-41;
+        ball.X = g_canvas.width/2;
+        ball.Y = g_canvas.height-38;
+       GameScoreText.Text = "Score"+" "+score;
+   }
+    
+}
+
+function Gamerestart()
+{
+    GameOverpannel.setActive=false;
+    GameOverText.setActive=false;
+    GamereStartbutton.setActive=false;
+    GamecompleteText.setActive=false;
+    GameScoreText.setActive=false;
+    score=0;
+    for(var i=0; i<block.length; i++)
+    {
+        block[i].setActive=true;
+    }
+    paddel.X=(g_canvas.width/2)-41;
+    ball.X = g_canvas.width/2;
+    ball.Y = g_canvas.height-38;
+}
+function Gameloop()
+{
+    ballcollision();
+    ball.m_moveball();
+    ballcollisiontopaddel();
+    stopballflowpaddel();
+    Gamemanager();
+    paddel.m_movepaddle();
+    ballandblockscollision();
+    paddelboundarycollision();
+    g_ctx.clearRect(0,0,g_canvas.width,g_canvas.height);
+    g_ctx.fillStyle = "black";
+    g_ctx.fillRect(0,0,g_canvas.width,g_canvas.height);
+    drawblocks(g_ctx);
+    ball.m_drawball(g_ctx);
+    paddel.m_drawpaddel(g_ctx);
+    GameOverpannel.m_drawpannel(g_ctx);
+    GameOverText.m_drawText(g_ctx);
+    GamecompleteText.m_drawText(g_ctx);
+    GameScoreText.m_drawText(g_ctx);
+    Gamestartpannel.m_drawpannel(g_ctx);
+    Gametitle.m_drawText(g_ctx);
+    pressbottonText.m_drawText(g_ctx);
+    GameStartbutton.m_drawbutton(g_ctx);
+    GamereStartbutton.m_drawbutton(g_ctx);
+    scoreText(g_ctx);
+}
+Createblocks(4,9)
+setInterval(Gameloop,intervaltime);
+document.addEventListener("keydown",keydownhandler);
+document.addEventListener("keyup",keyuphandler);
+document.addEventListener("mousedown",mousedownhandler);
+</script>
+</html>
