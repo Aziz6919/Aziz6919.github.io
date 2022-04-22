@@ -41,7 +41,7 @@ var Gamerestartbuttonclick=false;
 var Playerlifecounter = 0;
 var Gamerestartcall = false;
 var Score = 0;
-var g_playershootingAudio = new Audio("")
+
 var AlienShip_bitmaparray=[0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0,
                            0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0,
                            0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,
@@ -852,9 +852,10 @@ var Gamestartbutton = new C_button(310,425,170,50,"white","Play"+" "+"Game",true
 var Gamerestartbutton = new C_button(310,350,170,50,"white","Play"+" "+"Again",false);
 var GameOverText = new C_Text(320,200,"Game"+" "+"Over","30px Georgia",false);
 var GamecompleteText = new C_Text(320,200,"Game"+" "+"Complete","30px Georgia",false);
-var GamescoreText = new C_Text(320,300,"Score"+" "+Score,"30px Georgia",false);
+var GamescoreText = new C_Text(340,300,"Score"+" "+Score,"30px Georgia",false);
 var GameTitle = new C_Text(300,150,"Space"+" "+"Invaders","30px Georgia",true);
 var bunkersArray = new Array(3);
+var g_Aliencount = 0;
 function createbunkers()
 {
     bunker_1[0] = new C_bunkerGrid(20,450,10,10,bunker_leftpart_bitmaparray,"#7ff877");
@@ -2159,6 +2160,7 @@ function Gamecomplete()
         Gamerestartbutton.setAcive=true;
         Gamestartbuttonclick=false;
         Gamerestartbuttonclick=true;
+        g_Aliencount=0;
         GameOvermanu.setAcive=true;
         Playerlife_1.setAcive=false;
         Playerlife_2.setAcive=false;
@@ -2186,12 +2188,23 @@ function Gamecomplete()
 }
 function Gamemanager()
 {
-    if(Aliens_Array[0].Explosion==1 && Aliens_Array[1].Explosion==1 && Aliens_Array[3].Explosion==1 && Aliens_Array[4].Explosion==1 && Aliens_Array[5].Explosion==1 && Aliens_Array[6].Explosion==1 && Aliens_Array[7].Explosion==1 && Aliens_Array[8].Explosion==1 && Aliens_Array[8].Explosion==1 && Aliens_Array[9].Explosion==1 && Aliens_Array[10].Explosion==1 && Aliens_Array[11].Explosion==1 && Aliens_Array[12].Explosion==1 && Aliens_Array[13].Explosion==1 && Aliens_Array[13].Explosion==1 && Aliens_Array[14].Explosion==1 && Aliens_Array[15].Explosion==1 && Aliens_Array[16].Explosion==1 && Aliens_Array[17].Explosion==1 && Aliens_Array[18].Explosion==1 && Aliens_Array[19].Explosion==1 && Aliens_Array[20].Explosion==1 && Aliens_Array[21].Explosion==1 && Aliens_Array[22].Explosion==1 && Aliens_Array[23].Explosion==1 && Aliens_Array[24].Explosion==1 && Aliens_Array[25].Explosion==1 &&
-    Aliens_Array[26].Explosion==1 && Aliens_Array[27].Explosion==1 && Aliens_Array[28].Explosion==1 &&
-    Aliens_Array[29].Explosion==1)
+    for(var i=0; i<Aliens_Array.length; i++)
+    {
+        if(Aliens_Array[i].Explosion==1)
+        {
+               g_Aliencount++;
+            
+        }
+    }
+    if(g_Aliencount !=Aliens_Array.length)
+    {
+        g_Aliencount=0;
+    }
+    if(g_Aliencount==Aliens_Array.length)
     {
         Gamecomplete();
     }
+    
 }
 
 function scoremanager()

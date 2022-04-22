@@ -92,7 +92,7 @@ class C_tank
     m_drawtank(l_ctx)
     {
       
-      l_ctx.drawImage(this.tankimage,this.X-(this.tankwidth/2.2),this.Y-(this.tankheight/2),this.tankwidth,this.tankheight);
+      l_ctx.drawImage(this.tankimage,this.X-(this.tankwidth/1.9),this.Y-(this.tankheight/1.83),this.tankwidth,this.tankheight);
       l_ctx.save();
       l_ctx.translate(this.X,this.Y);
       l_ctx.rotate((this.rotationangle)*Math.PI/180);
@@ -101,15 +101,15 @@ class C_tank
     }
     m_rotatetank()
     {
-        if(this.rotateClockwise==true)
+        if(this.rotateClockwise==true )
         {
             this.rotationangle+=this.rotationspeed;
-           
+            
         }
         if(this.rotateanticolckwise==true)
         {
             this.rotationangle-=this.rotationspeed;
-            
+            console.log(this.rotationangle);
         }
     }
     m_fire()
@@ -172,11 +172,8 @@ function f_keydownhandler(l_keydata)
     }
     if(l_keydata.keyCode==32)
     {
-    
+        
         tank.firebullet=true;
-        tank.bullet.X = tank.X;
-        tank.bullet.Y = tank.Y;
-        tank.bulletvelocityY = tank.intialvelocity;
         
     }
 
@@ -269,7 +266,7 @@ var framecounter = 0;
 var enemys = new Array(5);
 var healthbarbackground = new C_healthbar(780,20,100,20,"white");
 var healthbar = new C_healthbar(780,20,100,20,"red");
-var tank = new C_tank(80,g_canvas.height-150,130,100,104,60,-100,10,tankimage,turretimage);
+var tank = new C_tank(80,g_canvas.height-150,100,130,104,60,-100,10,tankimage,turretimage);
 enemys[0] = new C_enemy(800,400,150,100,1,enimy_image,1000,400,800,400);
 enemys[1] = new C_enemy(1000,400,150,100,1,enimy_image,1000,400,1000,400);
 enemys[2] = new C_enemy(1200,400,150,100,1,enimy_image,1000,400,1200,400);
@@ -287,6 +284,10 @@ function bulletreluntch(l_canvas)
    if(checkpointX>l_canvas.width || checkpointY>l_canvas.height)
    {
       tank.firebullet=false; 
+      tank.bullet.X = tank.X;
+      tank.bullet.Y = tank.Y;
+      tank.bulletvelocityY = tank.intialvelocity;
+        
    }
 }
 var dist = 0;
