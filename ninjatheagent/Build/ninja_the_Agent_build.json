@@ -1,0 +1,16 @@
+{
+"companyName": "DefaultCompany",
+"productName": "ninja _the _Agent",
+"productVersion": "1.0",
+"dataUrl": "ninja_the_Agent_build.data.unityweb",
+"wasmCodeUrl": "ninja_the_Agent_build.wasm.code.unityweb",
+"wasmFrameworkUrl": "ninja_the_Agent_build.wasm.framework.unityweb",
+"graphicsAPI": ["WebGL 2.0","WebGL 1.0"],
+"webglContextAttributes": {"preserveDrawingBuffer": false},
+"splashScreenStyle": "Dark",
+"backgroundColor": "#231F20",
+"cacheControl": {"default": "must-revalidate"},
+"developmentBuild": false,
+"multithreading": false,
+"unityVersion": "2019.4.38f1"
+}

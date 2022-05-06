@@ -1,0 +1,22 @@
+fileFormatVersion: 2
+guid: df07039e959ca834a97b6afbda94ad3d
+TrueTypeFontImporter:
+  externalObjects: {}
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontNames:
+  - Those Glitch
+  fallbackFontReferences:
+  - {fileID: 12800000, guid: 9748a8faf6ad7704e86cf87cd5d8dd52, type: 3}
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  useLegacyBoundsCalculation: 0
+  shouldRoundAdvanceValue: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
