@@ -1,0 +1,18 @@
+Feedback of 10 Solitaire:-
+
+1. Status bar missing to hide phone camera (done)
+2. Setting page comes late (done)
+3. Navigation buttons on tutorial page are not at exact same place. (done)
+4. Tutorial videos are missing (done)
+5. Tutorial content like font size etc are not as per design. Text is small and all page designs are also not as per approved design. 
+6. Hide customize button for now and place how to play in center. done
+7. 3 2 1 go should be same animation and voice like JP. Only color of text would be as per 10s theme. done
+8. Background music is too loud so sound is not clearing audible. (done)
+9. Victory celebration should be there in case player win the game 
+10. Score page animation is needed with crowd cheering. (done)
+11. Share button on home page should share link of skilz page with friends.(done)
+12. Game should auto pause when out of focus (done)
+13. App store rating popup on 3rd open of the game
+14. Firebase SDK for analytics, push notifications etc
+
+
